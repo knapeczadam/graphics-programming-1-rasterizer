@@ -15,6 +15,28 @@
 
 namespace dae
 {
+    // -------------------------
+    // --- Vertex Definition ---
+    // -------------------------
+    const std::vector<Vertex> triangle_vertices_ndc
+    {
+        {{0.0f, 0.5f, 1.0f}},
+        {{0.5f, -0.5f, 1.0f}},
+        {{-0.5f, -0.5f, 1.0f}}
+    };
+    
+    const std::vector<Vertex> triangle_vertices_world
+    {
+        {{0.0f, 2.0f, 0.0f}},
+        {{1.0f, 0.0f, 0.0f}},
+        {{-1.0f, 0.0f, 0.0f}}
+    };
+
+    // Screen Space vertices
+    std::vector<Vertex> vertices_ss(3);
+
+    // -------------------------
+    
     Renderer::Renderer(SDL_Window* pWindow) :
         m_pWindow(pWindow)
     {
@@ -30,6 +52,8 @@ namespace dae
 
         //Initialize Camera
         m_Camera.Initialize(60.f, {.0f, .0f, -10.f});
+        const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
+        m_Camera.SetAspectRatio(aspectRatio);
     }
 
     Renderer::~Renderer()
@@ -68,7 +92,6 @@ namespace dae
 #elif W4
 #endif
 
-
         //@END
         //Update SDL Surface
         SDL_UnlockSurface(m_pBackBuffer);
@@ -76,13 +99,32 @@ namespace dae
         SDL_UpdateWindowSurface(m_pWindow);
     }
 
-    void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_in,
-                                                std::vector<Vertex>& vertices_out) const
+    void Renderer::VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
     {
-        vertices_out.clear();
-        vertices_out.resize(vertices_in.size());
+        for (size_t i{0}; i < vertices_in.size(); ++i)
+        {
+            const Vertex& vertex_in = vertices_in[i];
+            Vertex& vertex_out = vertices_out[i];
 
-        for (size_t i{}; i < vertices_in.size(); ++i)
+            // WORLD
+            const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
+            // VIEW
+            const Vector4 v4_ndc = m_Camera.invViewMatrix.TransformPoint(v4);
+            // PROJECTION
+            vertex_out.position.x = v4_ndc.x / v4_ndc.z;
+            vertex_out.position.y = v4_ndc.y / v4_ndc.z;
+            // NDC
+            vertex_out.position.x = vertex_out.position.x / (m_Camera.GetFOV() * m_Camera.GetAspectRatio());
+            vertex_out.position.y = vertex_out.position.y / m_Camera.GetFOV();
+            // SCREEN
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+        }
+    }
+
+    void Renderer::VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
+    {
+        for (size_t i{0}; i < vertices_in.size(); ++i)
         {
             const Vertex& vertex_in = vertices_in[i];
             Vertex& vertex_out = vertices_out[i];
@@ -131,15 +173,7 @@ namespace dae
     void Renderer::Render_W1_TODO_1()
     {
         // Define triangle - vertices in NDC space
-        std::vector<Vertex> vertices_ndc
-        {
-            {{0.0f, 0.5f, 1.0f}},
-            {{0.5f, -0.5f, 1.0f}},
-            {{-0.5f, -0.5f, 1.0f}}
-        };
-
-        std::vector<Vertex> vertices_ss;
-        VertexTransformationFunction(vertices_ndc, vertices_ss);
+        VertexTransformationFromNDCtoScreenSpace(triangle_vertices_ndc, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
         const Vector2 v1{vertices_ss[1].position.GetXY()};
@@ -161,8 +195,38 @@ namespace dae
         }
     }
 
+    /**
+     * \brief First Project the given triangle (now, the vertices
+              are defined in WORLD space). Rasterization stays
+              the same as the previous step.\n\n
+              Create a separate function that transforms a
+              vector of WORLD space vertices to a vector of
+              NDC space vertices (or directly to SCREEN
+              space).
+     */
     void Renderer::Render_W1_TODO_2()
     {
+        // Define triangle - vertices in WORLD space
+        VertexTransformationFromWorldToScreen(triangle_vertices_world, vertices_ss);
+
+        const Vector2 v0{vertices_ss[0].position.GetXY()};
+        const Vector2 v1{vertices_ss[1].position.GetXY()};
+        const Vector2 v2{vertices_ss[2].position.GetXY()};
+
+        for (int px{0}; px < m_Width; ++px)
+        {
+            for (int py{0}; py < m_Height; ++py)
+            {
+                Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                ColorRGB finalColor{colors::Black};
+                if (IsPointInTriangleV1(pixel, v0, v1, v2))
+                {
+                    finalColor = colors::White;
+                }
+                UpdateColor(finalColor, px, py);
+            }
+        }
     }
 
     void Renderer::Render_W1_TODO_3()

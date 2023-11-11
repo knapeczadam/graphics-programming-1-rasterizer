@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <iostream>
+
 namespace dae
 {
     Camera::Camera(const Vector3& _origin, float _fovAngle)
@@ -33,23 +35,6 @@ namespace dae
         CalculateProjectionMatrix();
         //Try to optimize this - should only be called once or when fov/aspectRatio changes
     }
-
-
-    Matrix Camera::CalculateCameraToWorld()
-    {
-        Matrix out;
-
-        right = Vector3{forward.z, 0.f, -forward.x}.Normalized();
-        up = Vector3::Cross(forward, right);
-
-        out[0] = Vector4{right, 0.f};
-        out[1] = Vector4{up, 0.f};
-        out[2] = Vector4{forward, 0.f};
-        out[3] = Vector4{origin, 1.f};
-
-        return out;
-    }
-
 
     float Camera::GetFOV() const
     {
@@ -148,9 +133,20 @@ namespace dae
 
     void Camera::CalculateViewMatrix()
     {
-        //TODO W1
         //ONB => invViewMatrix
         //Inverse(ONB) => ViewMatrix
+        Matrix out;
+
+        right = Vector3{forward.z, 0.f, -forward.x}.Normalized();
+        up = Vector3::Cross(forward, right);
+
+        out[0] = Vector4{right, 0.f};
+        out[1] = Vector4{up, 0.f};
+        out[2] = Vector4{forward, 0.f};
+        out[3] = Vector4{origin, 1.f};
+
+        viewMatrix = out;
+        invViewMatrix = Matrix::Inverse(out);
 
         //ViewMatrix => Matrix::CreateLookAtLH(...) [not implemented yet]
         //DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatlh
@@ -164,8 +160,4 @@ namespace dae
         //DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
     }
 
-    Matrix Camera::GetViewProjection() const
-    {
-        return viewMatrix;
-    }
 }

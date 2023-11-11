@@ -4,6 +4,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
+#include "DataTypes.h"
 #include "Maths.h"
 #include "Timer.h"
 
@@ -18,8 +19,6 @@ namespace dae
         void Initialize(float _fovAngle = 90.f, Vector3 _origin = {0.f, 0.f, 0.f});
         void Update(Timer* pTimer);
 
-        
-        Matrix CalculateCameraToWorld();
         float GetFOV() const;
         void Scroll(SDL_MouseWheelEvent wheel);
         void IncreaseFOV();
@@ -29,17 +28,23 @@ namespace dae
         
         void CalculateViewMatrix();
         void CalculateProjectionMatrix();
-        Matrix GetViewProjection() const;
-        
+        inline float GetAspectRatio() const { return aspectRatio; }
+        inline void SetAspectRatio(float aspect_ratio) { aspectRatio = aspect_ratio; }
+
     private:
         float CalculateFOV(float angle) const;
         void MoveCamera(const uint8_t* pKeyboardState, float deltaTime);
         void RotateCamera(float deltaTime);
 
+    public:
+        Matrix invViewMatrix {};
+        Matrix viewMatrix    {};
+
     private:
-        Vector3 origin   {};
-        float   fovAngle {90.f};
-        float   fov      {tanf((fovAngle * TO_RADIANS) / 2.f)};
+        Vector3 origin      {};
+        float   fovAngle    {90.f};
+        float   fov         {tanf((fovAngle * TO_RADIANS) / 2.f)};
+        float   aspectRatio {1.0f};
 
         Vector3 forward {Vector3::UnitZ};
         Vector3 up      {Vector3::UnitY};
@@ -51,8 +56,5 @@ namespace dae
         float  speed         {10.0f};
         float  rotationSpeed {100.0f};
         float  m_ScrollSpeed {0.5f};
-
-        Matrix invViewMatrix {};
-        Matrix viewMatrix    {};
     };
 }

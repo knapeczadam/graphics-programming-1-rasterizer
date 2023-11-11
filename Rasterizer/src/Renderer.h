@@ -32,10 +32,15 @@ namespace dae
 
         bool SaveBufferToImage() const;
 
-        void VertexTransformationFunction(const std::vector<Vertex>& vertices_in,
-                                          std::vector<Vertex>& vertices_out) const;
-
+        inline Camera& GetCamera() { return m_Camera; }
+        
     private:
+
+        void VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in,
+                                          std::vector<Vertex>& vertices_out) const;
+        void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in,
+                                                      std::vector<Vertex>& vertices_out) const;
+
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
         void Render_W1_TODO_0();
         void Render_W1_TODO_1();
