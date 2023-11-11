@@ -152,7 +152,7 @@ namespace dae
                 Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
-                if (IsPointInTriangle(pixel, v0, v1, v2))
+                if (IsPointInTriangleV1(pixel, v0, v1, v2))
                 {
                     finalColor = colors::White;
                 }

@@ -68,15 +68,32 @@ namespace dae
      * \param C 
      * \return 
      */
-    inline bool IsPointInTriangle(const Vector2& point, const Vector2& A, const Vector2& B, const Vector2& C)
+    inline bool IsPointInTriangleV1(const Vector2& point, const Vector2& A, const Vector2& B, const Vector2& C)
     {
         if (point == A or point == B or point == C) return true;
+        
         const float Cy_min_Ay = C.y - A.y;
         const float Cx_min_Ax = C.x - A.x;
         const float By_min_Ay = B.y - A.y;
+        
         const float w1{ (A.x * Cy_min_Ay + (point.y - A.y) * Cx_min_Ax - point.x * Cy_min_Ay) / (By_min_Ay * Cx_min_Ax - (B.x - A.x) * Cy_min_Ay) };
         const float w2{ (point.y - A.y - w1 * By_min_Ay) / Cy_min_Ay };
-        return w1 >= 0 and w2 >= 0 and (w1 + w2) <= 1;
         
+        return w1 >= 0 and w2 >= 0 and (w1 + w2) <= 1;
+    }
+
+    inline bool IsPointInTriangleV2(const Vector2& point, const Vector2& v0, const Vector2& v1, const Vector2& v2)
+    {
+        if (point == v0 or point == v1 or point == v2) return true;
+        
+        const Vector2 v0v1 = v1 - v0;
+        const Vector2 v1v2 = v2 - v1;
+        const Vector2 v2v0 = v0 - v2;
+
+        if (Vector2::Cross(v0v1, point - v0) < 0) return false;
+        if (Vector2::Cross(v1v2, point - v1) < 0) return false;
+        if (Vector2::Cross(v2v0, point - v2) < 0) return false;
+
+        return true;
     }
 }
