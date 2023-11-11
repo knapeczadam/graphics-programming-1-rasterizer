@@ -16,7 +16,7 @@
 namespace dae
 {
     // -------------------------
-    // --- Vertex Definition ---
+    // --- Global Variables ----
     // -------------------------
     const std::vector<Vertex> triangle_vertices_ndc
     {
@@ -25,16 +25,24 @@ namespace dae
         {{-0.5f, -0.5f, 1.0f}}
     };
     
-    const std::vector<Vertex> triangle_vertices_world
+    const std::vector<Vertex> triangle_vertices_world_todo_2
     {
         {{0.0f, 2.0f, 0.0f}},
         {{1.0f, 0.0f, 0.0f}},
         {{-1.0f, 0.0f, 0.0f}}
     };
 
-    // Screen Space vertices
-    std::vector<Vertex> vertices_ss(3);
+    const std::vector<Vertex> triangle_vertices_world_todo_3
+    {
+        {{0.0f, 4.0f, 2.0f}, {1.0f, 0.0f, 0.0f}},
+        {{3.0f, -2.0f, 2.0f}, {0.0f, 1.0f, 0.0f}},
+        {{-3.0f, -2.0f, 2.0f}, {0.0f, 0.0f, 1.0f}}
+    };
 
+    // SS = Screen Space
+    std::vector<Vertex> vertices_ss(3);
+    
+    std::array<float, 3> weights{};
     // -------------------------
     
     Renderer::Renderer(SDL_Window* pWindow) :
@@ -170,9 +178,8 @@ namespace dae
      * Loop over all pixels, and then check if triangle covers the given pixel
      * Vertex vector can be defined in the render function itself
      */
-    void Renderer::Render_W1_TODO_1()
+    void Renderer::Render_W1_TODO_1() const
     {
-        // Define triangle - vertices in NDC space
         VertexTransformationFromNDCtoScreenSpace(triangle_vertices_ndc, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
@@ -186,7 +193,7 @@ namespace dae
                 Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
-                if (IsPointInTriangleV1(pixel, v0, v1, v2))
+                if (IsPointInTriangleFast(pixel, v0, v1, v2))
                 {
                     finalColor = colors::White;
                 }
@@ -204,10 +211,9 @@ namespace dae
               NDC space vertices (or directly to SCREEN
               space).
      */
-    void Renderer::Render_W1_TODO_2()
+    void Renderer::Render_W1_TODO_2() const
     {
-        // Define triangle - vertices in WORLD space
-        VertexTransformationFromWorldToScreen(triangle_vertices_world, vertices_ss);
+        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_2, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
         const Vector2 v1{vertices_ss[1].position.GetXY()};
@@ -220,7 +226,7 @@ namespace dae
                 Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
-                if (IsPointInTriangleV1(pixel, v0, v1, v2))
+                if (IsPointInTriangle(pixel, v0, v1, v2))
                 {
                     finalColor = colors::White;
                 }
@@ -229,8 +235,30 @@ namespace dae
         }
     }
 
-    void Renderer::Render_W1_TODO_3()
+    void Renderer::Render_W1_TODO_3() const
     {
+        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_3, vertices_ss);
+
+        const Vector2 v0{vertices_ss[0].position.GetXY()};
+        const Vector2 v1{vertices_ss[1].position.GetXY()};
+        const Vector2 v2{vertices_ss[2].position.GetXY()};
+
+        for (int px{0}; px < m_Width; ++px)
+        {
+            for (int py{0}; py < m_Height; ++py)
+            {
+                Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                ColorRGB finalColor{colors::Black};
+                if (IsPointInTriangle(pixel, v0, v1, v2, weights))
+                {
+                    finalColor = triangle_vertices_world_todo_3[0].color * weights[0] +
+                                 triangle_vertices_world_todo_3[1].color * weights[1] +
+                                 triangle_vertices_world_todo_3[2].color * weights[2];
+                }
+                UpdateColor(finalColor, px, py);
+            }
+        }
     }
 
     void Renderer::Render_W1_TODO_4()

@@ -1,6 +1,7 @@
 #pragma once
 #include <cfloat>
 #include <cmath>
+#include <array>
 
 #include "Vector2.h"
 
@@ -69,7 +70,7 @@ namespace dae
      * \param C 
      * \return 
      */
-    inline bool IsPointInTriangleV1(const Vector2& point, const Vector2& A, const Vector2& B, const Vector2& C)
+    inline bool IsPointInTriangleFast(const Vector2& point, const Vector2& A, const Vector2& B, const Vector2& C)
     {
         if (point == A or point == B or point == C) return true;
         
@@ -83,7 +84,7 @@ namespace dae
         return w1 >= 0 and w2 >= 0 and (w1 + w2) <= 1;
     }
 
-    inline bool IsPointInTriangleV2(const Vector2& point, const Vector2& v0, const Vector2& v1, const Vector2& v2)
+    inline bool IsPointInTriangle(const Vector2& point, const Vector2& v0, const Vector2& v1, const Vector2& v2)
     {
         if (point == v0 or point == v1 or point == v2) return true;
         
@@ -94,6 +95,34 @@ namespace dae
         if (Vector2::Cross(v0v1, point - v0) < 0) return false;
         if (Vector2::Cross(v1v2, point - v1) < 0) return false;
         if (Vector2::Cross(v2v0, point - v2) < 0) return false;
+
+        return true;
+    }
+    
+    inline bool IsPointInTriangle(const Vector2& point, const Vector2& v0, const Vector2& v1, const Vector2& v2, std::array<float,3>& weights)
+    {
+        if (point == v0 or point == v1 or point == v2) return true;
+        
+        const Vector2 v0v1 = v1 - v0;
+        const Vector2 v1v2 = v2 - v1;
+        const Vector2 v2v0 = v0 - v2;
+        
+        weights[0] = Vector2::Cross(v1v2, point - v1);
+        weights[1] = Vector2::Cross(v2v0, point - v2);
+        weights[2] = Vector2::Cross(v0v1, point - v0);
+        
+        if (weights[0] < 0) return false;
+        if (weights[1] < 0) return false;
+        if (weights[2] < 0) return false;
+
+        weights[0] *= 0.5f;
+        weights[1] *= 0.5f;
+        weights[2] *= 0.5f;
+
+        const float area = Vector2::Cross(v0v1, v1v2) * 0.5f;
+        weights[0] /= area;
+        weights[1] /= area;
+        weights[2] /= area;
 
         return true;
     }
