@@ -12,7 +12,7 @@ namespace dae
     #define TODO_0 false
     #define TODO_1 false
     #define TODO_2 false
-    #define TODO_3 true
-    #define TODO_4 false
+    #define TODO_3 false
+    #define TODO_4 true
     #define TODO_5 false    
 }

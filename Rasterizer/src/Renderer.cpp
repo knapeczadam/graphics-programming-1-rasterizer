@@ -24,7 +24,7 @@ namespace dae
         {{0.5f, -0.5f, 1.0f}},
         {{-0.5f, -0.5f, 1.0f}}
     };
-    
+
     const std::vector<Vertex> triangle_vertices_world_todo_2
     {
         {{0.0f, 2.0f, 0.0f}},
@@ -39,12 +39,22 @@ namespace dae
         {{-3.0f, -2.0f, 2.0f}, {0.0f, 0.0f, 1.0f}}
     };
 
+    const std::vector<Vertex> triangle_vertices_world_todo_4
+    {
+        {{0.0f, 2.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{1.5f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{-1.5f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{0.0f, 4.0f, 2.0f}, {1.0f, 0.0f, 0.0f}},
+        {{3.0f, -2.0f, 2.0f}, {0.0f, 1.0f, 0.0f}},
+        {{-3.0f, -2.0f, 2.0f}, {0.0f, 0.0f, 1.0f}}
+    };
+
     // SS = Screen Space
-    std::vector<Vertex> vertices_ss(3);
-    
+    std::vector<Vertex> vertices_ss(6);
+
     std::array<float, 3> weights{};
     // -------------------------
-    
+
     Renderer::Renderer(SDL_Window* pWindow) :
         m_pWindow(pWindow)
     {
@@ -57,6 +67,7 @@ namespace dae
         m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
 
         //m_pDepthBufferPixels = new float[m_Width * m_Height];
+        m_DepthBuffer.resize(m_Width * m_Height);
 
         //Initialize Camera
         m_Camera.Initialize(60.f, {.0f, .0f, -10.f});
@@ -263,6 +274,45 @@ namespace dae
 
     void Renderer::Render_W1_TODO_4()
     {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+        // Also clear the BackBuffer (SDL_FillRect, clearColor = {100,100,100}
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+        
+        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_4, vertices_ss);
+
+        for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
+        {
+            const Vector2 v0{vertices_ss[triangleIdx].position.GetXY()};
+            const Vector2 v1{vertices_ss[triangleIdx + 1].position.GetXY()};
+            const Vector2 v2{vertices_ss[triangleIdx + 2].position.GetXY()};
+
+            for (int px{0}; px < m_Width; ++px)
+            {
+                for (int py{0}; py < m_Height; ++py)
+                {
+                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    if (IsPointInTriangle(pixel, v0, v1, v2, weights))
+                    {
+                        // Depth
+                        const float depth = vertices_ss[triangleIdx].position.z * weights[0] +
+                                            vertices_ss[triangleIdx + 1].position.z * weights[1] +
+                                            vertices_ss[triangleIdx + 2].position.z * weights[2];
+                        if (depth < m_DepthBuffer[px + (py * m_Width)])
+                        {
+                            m_DepthBuffer[px + (py * m_Width)] = depth;
+                            
+                            // Color
+                            finalColor = triangle_vertices_world_todo_4[triangleIdx].color * weights[0] +
+                                triangle_vertices_world_todo_4[triangleIdx + 1].color * weights[1] +
+                                triangle_vertices_world_todo_4[triangleIdx + 2].color * weights[2];
+                            UpdateColor(finalColor, px, py);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void Renderer::Render_W1_TODO_5()

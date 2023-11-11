@@ -115,11 +115,7 @@ namespace dae
         if (weights[1] < 0) return false;
         if (weights[2] < 0) return false;
 
-        weights[0] *= 0.5f;
-        weights[1] *= 0.5f;
-        weights[2] *= 0.5f;
-
-        const float area = Vector2::Cross(v0v1, v1v2) * 0.5f;
+        const float area = Vector2::Cross(v0v1, v1v2);
         weights[0] /= area;
         weights[1] /= area;
         weights[2] /= area;
