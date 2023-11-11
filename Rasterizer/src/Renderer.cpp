@@ -62,12 +62,12 @@ namespace dae
 #elif TODO_5
         Render_W1_TODO_5();
 #endif
-        
+
 #elif W2
 #elfi W3
 #elif W4
 #endif
-        
+
 
         //@END
         //Update SDL Surface
@@ -79,18 +79,29 @@ namespace dae
     void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_in,
                                                 std::vector<Vertex>& vertices_out) const
     {
-        //Todo > W1 Projection Stage
+        vertices_out.clear();
+        vertices_out.resize(vertices_in.size());
+
+        for (size_t i{}; i < vertices_in.size(); ++i)
+        {
+            const Vertex& vertex_in = vertices_in[i];
+            Vertex& vertex_out = vertices_out[i];
+
+            // From NDC to Screen Space
+            vertex_out.position.x = (vertex_in.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
+            vertex_out.position.y = (1.0f - vertex_in.position.y) * 0.5f * static_cast<float>(m_Height);
+        }
     }
 
     void Renderer::UpdateColor(ColorRGB& finalColor, int px, int py) const
     {
-                //Update Color in Buffer
-                finalColor.MaxToOne();
+        //Update Color in Buffer
+        finalColor.MaxToOne();
 
-                m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-                                                                      static_cast<uint8_t>(finalColor.r * 255),
-                                                                      static_cast<uint8_t>(finalColor.g * 255),
-                                                                      static_cast<uint8_t>(finalColor.b * 255));
+        m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+                                                              static_cast<uint8_t>(finalColor.r * 255),
+                                                              static_cast<uint8_t>(finalColor.g * 255),
+                                                              static_cast<uint8_t>(finalColor.b * 255));
     }
 
     void Renderer::Render_W1_TODO_0()
@@ -111,8 +122,43 @@ namespace dae
         }
     }
 
+    /**
+     * \brief Rasterize the given triangle (each vertex is already defined in NDC space)
+     * You should convert to each pixel to Screen Space (pixel coordinates)
+     * Loop over all pixels, and then check if triangle covers the given pixel
+     * Vertex vector can be defined in the render function itself
+     */
     void Renderer::Render_W1_TODO_1()
     {
+        // Define triangle - vertices in NDC space
+        std::vector<Vertex> vertices_ndc
+        {
+            {{0.0f, 0.5f, 1.0f}},
+            {{0.5f, -0.5f, 1.0f}},
+            {{-0.5f, -0.5f, 1.0f}}
+        };
+
+        std::vector<Vertex> vertices_ss;
+        VertexTransformationFunction(vertices_ndc, vertices_ss);
+
+        const Vector2 v0{vertices_ss[0].position.GetXY()};
+        const Vector2 v1{vertices_ss[1].position.GetXY()};
+        const Vector2 v2{vertices_ss[2].position.GetXY()};
+
+        for (int px{0}; px < m_Width; ++px)
+        {
+            for (int py{0}; py < m_Height; ++py)
+            {
+                Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                ColorRGB finalColor{colors::Black};
+                if (IsPointInTriangle(pixel, v0, v1, v2))
+                {
+                    finalColor = colors::White;
+                }
+                UpdateColor(finalColor, px, py);
+            }
+        }
     }
 
     void Renderer::Render_W1_TODO_2()

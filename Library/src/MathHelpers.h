@@ -2,6 +2,8 @@
 #include <cfloat>
 #include <cmath>
 
+#include "Vector2.h"
+
 namespace dae
 {
     /* --- HELPER STRUCTS --- */
@@ -56,5 +58,25 @@ namespace dae
         if (v < 0.f) return 0.f;
         if (v > 1.f) return 1.f;
         return v;
+    }
+
+    /**
+     * \brief https://www.youtube.com/watch?v=HYAgJN3x4GA
+     * \param point
+     * \param A 
+     * \param B 
+     * \param C 
+     * \return 
+     */
+    inline bool IsPointInTriangle(const Vector2& point, const Vector2& A, const Vector2& B, const Vector2& C)
+    {
+        if (point == A or point == B or point == C) return true;
+        const float Cy_min_Ay = C.y - A.y;
+        const float Cx_min_Ax = C.x - A.x;
+        const float By_min_Ay = B.y - A.y;
+        const float w1{ (A.x * Cy_min_Ay + (point.y - A.y) * Cx_min_Ax - point.x * Cy_min_Ay) / (By_min_Ay * Cx_min_Ax - (B.x - A.x) * Cy_min_Ay) };
+        const float w2{ (point.y - A.y - w1 * By_min_Ay) / Cy_min_Ay };
+        return w1 >= 0 and w2 >= 0 and (w1 + w2) <= 1;
+        
     }
 }
