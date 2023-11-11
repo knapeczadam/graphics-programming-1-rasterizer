@@ -67,6 +67,15 @@ int main(int argc, char* args[])
             case SDL_KEYUP:
                 if (e.key.keysym.scancode == SDL_SCANCODE_X)
                     takeScreenshot = true;
+                if (e.key.keysym.scancode == SDL_SCANCODE_F6)
+                    pTimer->StartBenchmark();
+                if (e.key.keysym.scancode == SDL_SCANCODE_E)
+                    pRenderer->GetCamera().IncreaseFOV();
+                if (e.key.keysym.scancode == SDL_SCANCODE_Q)
+                    pRenderer->GetCamera().DecreaseFOV();
+                break;
+            case SDL_MOUSEWHEEL:
+                pRenderer->GetCamera().Scroll(e.wheel);
                 break;
             }
         }

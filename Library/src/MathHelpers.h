@@ -62,6 +62,7 @@ namespace dae
 
     /**
      * \brief https://www.youtube.com/watch?v=HYAgJN3x4GA
+     * ~2X faster than IsPointInTriangleV2
      * \param point
      * \param A 
      * \param B 
