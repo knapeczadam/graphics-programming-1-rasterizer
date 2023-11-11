@@ -275,9 +275,9 @@ namespace dae
     void Renderer::Render_W1_TODO_4()
     {
         std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
-        // Also clear the BackBuffer (SDL_FillRect, clearColor = {100,100,100}
+
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
-        
+
         VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_4, vertices_ss);
 
         for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
@@ -302,7 +302,7 @@ namespace dae
                         if (depth < m_DepthBuffer[px + (py * m_Width)])
                         {
                             m_DepthBuffer[px + (py * m_Width)] = depth;
-                            
+
                             // Color
                             finalColor = triangle_vertices_world_todo_4[triangleIdx].color * weights[0] +
                                 triangle_vertices_world_todo_4[triangleIdx + 1].color * weights[1] +
@@ -317,6 +317,58 @@ namespace dae
 
     void Renderer::Render_W1_TODO_5()
     {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_4, vertices_ss);
+
+        for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
+        {
+            const Vector2 v0{vertices_ss[triangleIdx].position.GetXY()};
+            const Vector2 v1{vertices_ss[triangleIdx + 1].position.GetXY()};
+            const Vector2 v2{vertices_ss[triangleIdx + 2].position.GetXY()};
+
+            // Create bounding box
+            int minX = static_cast<int>(std::min(v0.x, std::min(v1.x, v2.x)));
+            int maxX = static_cast<int>(std::max(v0.x, std::max(v1.x, v2.x)));
+            int minY = static_cast<int>(std::min(v0.y, std::min(v1.y, v2.y)));
+            int maxY = static_cast<int>(std::max(v0.y, std::max(v1.y, v2.y)));
+
+            
+            // Clamp bounding box to screen
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    if (IsPointInTriangle(pixel, v0, v1, v2, weights))
+                    {
+                        // Depth
+                        const float depth = vertices_ss[triangleIdx].position.z * weights[0] +
+                            vertices_ss[triangleIdx + 1].position.z * weights[1] +
+                            vertices_ss[triangleIdx + 2].position.z * weights[2];
+                        if (depth < m_DepthBuffer[px + (py * m_Width)])
+                        {
+                            m_DepthBuffer[px + (py * m_Width)] = depth;
+
+                            // Color
+                            finalColor = triangle_vertices_world_todo_4[triangleIdx].color * weights[0] +
+                                triangle_vertices_world_todo_4[triangleIdx + 1].color * weights[1] +
+                                triangle_vertices_world_todo_4[triangleIdx + 2].color * weights[2];
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     bool Renderer::SaveBufferToImage() const
