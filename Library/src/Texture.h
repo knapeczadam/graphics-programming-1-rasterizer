@@ -5,20 +5,20 @@
 
 namespace dae
 {
-	struct Vector2;
+    struct Vector2;
 
-	class Texture
-	{
-	public:
-		~Texture();
+    class Texture
+    {
+    public:
+        ~Texture();
 
-		static Texture* LoadFromFile(const std::string& path);
-		ColorRGB Sample(const Vector2& uv) const;
+        static Texture* LoadFromFile(const std::string& path);
+        ColorRGB Sample(const Vector2& uv) const;
 
-	private:
-		Texture(SDL_Surface* pSurface);
+    private:
+        Texture(SDL_Surface* pSurface);
 
-		SDL_Surface* m_pSurface{ nullptr };
-		uint32_t* m_pSurfacePixels{ nullptr };
-	};
+        SDL_Surface* m_pSurface{nullptr};
+        uint32_t* m_pSurfacePixels{nullptr};
+    };
 }
