@@ -4,9 +4,14 @@
 
 //Project includes
 #include "Renderer.h"
+
+#include <iostream>
+
 #include "Maths.h"
 #include "Texture.h"
 #include "Utils.h"
+
+#include "Macros.h"
 
 namespace dae
 {
@@ -43,26 +48,26 @@ namespace dae
         //Lock BackBuffer
         SDL_LockSurface(m_pBackBuffer);
 
-        //RENDER LOGIC
-        for (int px{}; px < m_Width; ++px)
-        {
-            for (int py{}; py < m_Height; ++py)
-            {
-                float gradient = px / static_cast<float>(m_Width);
-                gradient += py / static_cast<float>(m_Width);
-                gradient /= 2.0f;
-
-                ColorRGB finalColor{gradient, gradient, gradient};
-
-                //Update Color in Buffer
-                finalColor.MaxToOne();
-
-                m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-                                                                      static_cast<uint8_t>(finalColor.r * 255),
-                                                                      static_cast<uint8_t>(finalColor.g * 255),
-                                                                      static_cast<uint8_t>(finalColor.b * 255));
-            }
-        }
+#if W1
+#if TODO_0
+        Render_W1_TODO_0();
+#elif TODO_1
+        Render_W1_TODO_1();
+#elif TODO_2
+        Render_W1_TODO_2();
+#elif TODO_3
+        Render_W1_TODO_3();
+#elif TODO_4
+        Render_W1_TODO_4();
+#elif TODO_5
+        Render_W1_TODO_5();
+#endif
+        
+#elif W2
+#elfi W3
+#elif W4
+#endif
+        
 
         //@END
         //Update SDL Surface
@@ -75,6 +80,55 @@ namespace dae
                                                 std::vector<Vertex>& vertices_out) const
     {
         //Todo > W1 Projection Stage
+    }
+
+    void Renderer::UpdateColor(ColorRGB& finalColor, int px, int py) const
+    {
+                //Update Color in Buffer
+                finalColor.MaxToOne();
+
+                m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+                                                                      static_cast<uint8_t>(finalColor.r * 255),
+                                                                      static_cast<uint8_t>(finalColor.g * 255),
+                                                                      static_cast<uint8_t>(finalColor.b * 255));
+    }
+
+    void Renderer::Render_W1_TODO_0()
+    {
+        //RENDER LOGIC
+        for (int px{}; px < m_Width; ++px)
+        {
+            for (int py{}; py < m_Height; ++py)
+            {
+                float gradient = px / static_cast<float>(m_Width);
+                gradient += py / static_cast<float>(m_Width);
+                gradient /= 2.0f;
+
+                ColorRGB finalColor{gradient, gradient, gradient};
+
+                UpdateColor(finalColor, px, py);
+            }
+        }
+    }
+
+    void Renderer::Render_W1_TODO_1()
+    {
+    }
+
+    void Renderer::Render_W1_TODO_2()
+    {
+    }
+
+    void Renderer::Render_W1_TODO_3()
+    {
+    }
+
+    void Renderer::Render_W1_TODO_4()
+    {
+    }
+
+    void Renderer::Render_W1_TODO_5()
+    {
     }
 
     bool Renderer::SaveBufferToImage() const

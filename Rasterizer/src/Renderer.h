@@ -36,6 +36,13 @@ namespace dae
                                           std::vector<Vertex>& vertices_out) const;
 
     private:
+        void UpdateColor(ColorRGB& finalColor, int px, int py) const;
+        void Render_W1_TODO_0();
+        void Render_W1_TODO_1();
+        void Render_W1_TODO_2();
+        void Render_W1_TODO_3();
+        void Render_W1_TODO_4();
+        void Render_W1_TODO_5();
 
     private:
         SDL_Window* m_pWindow{};
