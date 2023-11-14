@@ -39,6 +39,8 @@ namespace dae
      */
     ColorRGB Texture::Sample(const Vector2& uv) const
     {
+        if (uv.x < 0.0f or uv.x > 1.0f or uv.y < 0.0f or uv.y > 1.0f)
+            return ColorRGB{0.39f, 0.39f, 0.39f};
         const int x{static_cast<int>(uv.x * static_cast<float>(m_pSurface->w))};
         const int y{static_cast<int>(uv.y * static_cast<float>(m_pSurface->h))};
         const int index{y * m_pSurface->w + x};
