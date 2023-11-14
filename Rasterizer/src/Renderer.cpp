@@ -49,7 +49,7 @@ namespace dae
         {{-3.0f, -2.0f, 2.0f}, {0.0f, 0.0f, 1.0f}}
     };
 
-    const std::vector<Mesh> meshes_world =
+    const std::vector<Mesh> meshes_world_list =
     {
         Mesh
         {
@@ -71,6 +71,30 @@ namespace dae
             },
             PrimitiveTopology::TriangleList
         },
+    };
+
+    std::vector<Mesh> meshes_world_strip
+    {
+        Mesh
+        {
+            {
+                Vertex{{-3, 3, -2}},
+                Vertex{{0, 3, -2}},
+                Vertex{{3, 3, -2}},
+                Vertex{{-3, 0, -2}},
+                Vertex{{0, 0, -2}},
+                Vertex{{3, 0, -2}},
+                Vertex{{-3, -3, -2}},
+                Vertex{{0, -3, -2}},
+                Vertex{{3, -3, -2}}
+            },
+            {
+                3, 0, 4, 1, 5, 2,
+                2, 6,
+                6, 3, 7, 4, 8, 5
+            },
+            PrimitiveTopology::TriangleStrip
+        }
     };
 
     // SS = Screen Space
@@ -99,7 +123,8 @@ namespace dae
         m_Camera.SetAspectRatio(aspectRatio);
 
         // --- ASSERTS ---
-        assert(not meshes_world.empty() and "Meshes are empty");
+        assert(not meshes_world_list.empty() and "Meshes list is empty");
+        assert(not meshes_world_strip.empty() and "Meshes strip is empty");
     }
 
     Renderer::~Renderer()
@@ -421,30 +446,103 @@ namespace dae
         std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+        
+        VertexTransformationFromWorldToScreen(meshes_world_list[0].vertices, vertices_ss);
 
-        for (const auto& mesh : meshes_world)
-        {
-            switch (mesh.primitiveTopology)
-            {
-            case dae::PrimitiveTopology::TriangleList:
-                VertexTransformationFromWorldToScreen(mesh.vertices, vertices_ss);
-                break;
-            case dae::PrimitiveTopology::TriangleStrip:
-                break;
-            }
-        }
-
-        for (size_t idx{0}; idx < meshes_world[0].indices.size(); idx += 3)
+        for (size_t idx{0}; idx < meshes_world_list[0].indices.size(); idx += 3)
         {
             // Indices triplets
-            const uint32_t idx1{meshes_world[0].indices[idx]};
-            const uint32_t idx2{meshes_world[0].indices[idx + 1]};
-            const uint32_t idx3{meshes_world[0].indices[idx + 2]};
+            const uint32_t idx0{meshes_world_list[0].indices[idx]};
+            const uint32_t idx1{meshes_world_list[0].indices[idx + 1]};
+            const uint32_t idx2{meshes_world_list[0].indices[idx + 2]};
 
             // Triangle's vertices
-            const Vertex& v0{vertices_ss[idx1]};
-            const Vertex& v1{vertices_ss[idx2]};
-            const Vertex& v2{vertices_ss[idx3]};
+            const Vertex& v0{vertices_ss[idx0]};
+            const Vertex& v1{vertices_ss[idx1]};
+            const Vertex& v2{vertices_ss[idx2]};
+
+            // Triangle's vertices' positions
+            const Vector3& pos0{v0.position};
+            const Vector3& pos1{v1.position};
+            const Vector3& pos2{v2.position};
+
+
+            // Create bounding box
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+
+            // Clamp bounding box to screen
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
+            
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Depth
+                        const float depth {pos0.z * weights[0] + pos1.z * weights[1] + pos2.z * weights[2]};
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (depth < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = depth;
+
+                            // Color
+                            finalColor = colors::White;
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Renderer::Render_W2_TODO_2()
+    {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+
+        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        for (size_t idx{0}; idx < indices.size() - 2; ++idx)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex v0;
+            Vertex v1;
+            Vertex v2;
+
+            // Check for degenarate triangles
+            if (idx0 == idx1 or idx1 == idx2 or idx2 == idx0) continue;
+                
+            v0 = vertices_ss[idx0];
+
+            if (idx % 2 == 0)
+            {
+                v1 = vertices_ss[idx1];
+                v2 = vertices_ss[idx2];
+            }
+            else
+            {
+                v1 = vertices_ss[idx2];
+                v2 = vertices_ss[idx1];
+            }
 
             // Triangle's vertices' positions
             const Vector3& pos0{v0.position};
@@ -489,10 +587,6 @@ namespace dae
                 }
             }
         }
-    }
-
-    void Renderer::Render_W2_TODO_2()
-    {
     }
 
     void Renderer::Render_W2_TODO_3()
