@@ -827,10 +827,10 @@ namespace dae
             int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
 
             // Clamp bounding box to screen + stretch by 1 pixel
-            minX = std::max(minX, 0);
-            maxX = std::min(maxX, m_Width - 1);
-            minY = std::max(minY, 0);
-            maxY = std::min(maxY, m_Height - 1);
+            minX = std::max(--minX, 0);
+            maxX = std::min(++maxX, m_Width - 1);
+            minY = std::max(--minY, 0);
+            maxY = std::min(++maxY, m_Height - 1);
 
             for (int px{minX}; px <= maxX; ++px)
             {
