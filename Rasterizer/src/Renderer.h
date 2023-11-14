@@ -18,6 +18,13 @@ namespace dae
 
     class Renderer final
     {
+    private:
+        enum class PrimitiveTopology
+        {
+            TriangleList,
+            TriangleStrip
+        };
+
     public:
         Renderer(SDL_Window* pWindow);
         ~Renderer();
@@ -33,13 +40,10 @@ namespace dae
         bool SaveBufferToImage() const;
 
         inline Camera& GetCamera() { return m_Camera; }
-        
-    private:
 
-        void VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in,
-                                          std::vector<Vertex>& vertices_out) const;
-        void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in,
-                                                      std::vector<Vertex>& vertices_out) const;
+    private:
+        void VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
+        void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
         void Render_W1_TODO_0();
