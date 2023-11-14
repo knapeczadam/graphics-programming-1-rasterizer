@@ -91,6 +91,7 @@ namespace dae
         //Lock BackBuffer
         SDL_LockSurface(m_pBackBuffer);
 
+        // --- WEEK 1 ---
 #if W1
 #if TODO_0
         Render_W1_TODO_0();
@@ -106,8 +107,20 @@ namespace dae
         Render_W1_TODO_5();
 #endif
 
+        // --- WEEK 2 ---
 #elif W2
-#elfi W3
+#if TODO_1
+        Render_W2_TODO_1();
+#elif TODO_2
+        Render_W2_TODO_2();
+#elif TODO_3
+        Render_W2_TODO_3();
+#endif
+
+        // --- WEEK 3 ---
+#elif W3
+
+        // --- WEEK 4 ---
 #elif W4
 #endif
 
@@ -201,7 +214,7 @@ namespace dae
         {
             for (int py{0}; py < m_Height; ++py)
             {
-                Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
                 if (IsPointInTriangleFast(pixel, v0, v1, v2))
@@ -234,7 +247,7 @@ namespace dae
         {
             for (int py{0}; py < m_Height; ++py)
             {
-                Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
                 if (IsPointInTriangle(pixel, v0, v1, v2))
@@ -258,7 +271,7 @@ namespace dae
         {
             for (int py{0}; py < m_Height; ++py)
             {
-                Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
                 if (IsPointInTriangle(pixel, v0, v1, v2, weights))
@@ -290,7 +303,7 @@ namespace dae
             {
                 for (int py{0}; py < m_Height; ++py)
                 {
-                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
                     if (IsPointInTriangle(pixel, v0, v1, v2, weights))
@@ -355,6 +368,7 @@ namespace dae
                         const float depth = vertices_ss[triangleIdx].position.z * weights[0] +
                             vertices_ss[triangleIdx + 1].position.z * weights[1] +
                             vertices_ss[triangleIdx + 2].position.z * weights[2];
+                        // TODO: simplify
                         if (depth < m_DepthBuffer[px + (py * m_Width)])
                         {
                             m_DepthBuffer[px + (py * m_Width)] = depth;
@@ -369,6 +383,18 @@ namespace dae
                 }
             }
         }
+    }
+
+    void Renderer::Render_W2_TODO_1()
+    {
+    }
+
+    void Renderer::Render_W2_TODO_2()
+    {
+    }
+
+    void Renderer::Render_W2_TODO_3()
+    {
     }
 
     bool Renderer::SaveBufferToImage() const
