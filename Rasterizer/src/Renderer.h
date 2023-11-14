@@ -45,6 +45,8 @@ namespace dae
         void VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
         void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 
+        int GetBufferIndex(int x, int y) const;
+
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
         void Render_W1_TODO_0();
         void Render_W1_TODO_1() const;

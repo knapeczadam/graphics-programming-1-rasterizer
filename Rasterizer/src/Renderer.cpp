@@ -54,7 +54,7 @@ namespace dae
         Mesh
         {
             {
-                Vertex{{-3, 3, -3}},
+                Vertex{{-3, 3, -2}},
                 Vertex{{0, 3, -2}},
                 Vertex{{3, 3, -2}},
                 Vertex{{-3, 0, -2}},
@@ -74,7 +74,7 @@ namespace dae
     };
 
     // SS = Screen Space
-    std::vector<Vertex> vertices_ss(6);
+    std::vector<Vertex> vertices_ss(9);
 
     std::array<float, 3> weights{};
     // -------------------------
@@ -97,6 +97,9 @@ namespace dae
         m_Camera.Initialize(60.f, {.0f, .0f, -10.f});
         const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
         m_Camera.SetAspectRatio(aspectRatio);
+
+        // --- ASSERTS ---
+        assert(not meshes_world.empty() and "Meshes are empty");
     }
 
     Renderer::~Renderer()
@@ -189,6 +192,11 @@ namespace dae
             vertex_out.position.x = (vertex_in.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_in.position.y) * 0.5f * static_cast<float>(m_Height);
         }
+    }
+
+    int Renderer::GetBufferIndex(int x, int y) const
+    {
+        return x + (y * m_Width);
     }
 
     void Renderer::UpdateColor(ColorRGB& finalColor, int px, int py) const
@@ -414,20 +422,40 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_4, vertices_ss);
-
-        for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
+        for (const auto& mesh : meshes_world)
         {
-            const Vector2 v0{vertices_ss[triangleIdx].position.GetXY()};
-            const Vector2 v1{vertices_ss[triangleIdx + 1].position.GetXY()};
-            const Vector2 v2{vertices_ss[triangleIdx + 2].position.GetXY()};
+            switch (mesh.primitiveTopology)
+            {
+            case dae::PrimitiveTopology::TriangleList:
+                VertexTransformationFromWorldToScreen(mesh.vertices, vertices_ss);
+                break;
+            case dae::PrimitiveTopology::TriangleStrip:
+                break;
+            }
+        }
+
+        for (size_t idx{0}; idx < meshes_world[0].indices.size(); idx += 3)
+        {
+            // Indices triplets
+            const uint32_t idx1{meshes_world[0].indices[idx]};
+            const uint32_t idx2{meshes_world[0].indices[idx + 1]};
+            const uint32_t idx3{meshes_world[0].indices[idx + 2]};
+
+            // Triangle's vertices
+            const Vertex& v0{vertices_ss[idx1]};
+            const Vertex& v1{vertices_ss[idx2]};
+            const Vertex& v2{vertices_ss[idx3]};
+
+            // Triangle's vertices' positions
+            const Vector3& pos0{v0.position};
+            const Vector3& pos1{v1.position};
+            const Vector3& pos2{v2.position};
 
             // Create bounding box
-            int minX = static_cast<int>(std::min(v0.x, std::min(v1.x, v2.x)));
-            int maxX = static_cast<int>(std::max(v0.x, std::max(v1.x, v2.x)));
-            int minY = static_cast<int>(std::min(v0.y, std::min(v1.y, v2.y)));
-            int maxY = static_cast<int>(std::max(v0.y, std::max(v1.y, v2.y)));
-
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
 
             // Clamp bounding box to screen
             minX = std::max(minX, 0);
@@ -442,21 +470,19 @@ namespace dae
                     Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    if (IsPointInTriangle(pixel, v0, v1, v2, weights))
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Depth
-                        const float depth = vertices_ss[triangleIdx].position.z * weights[0] +
-                                        vertices_ss[triangleIdx + 1].position.z * weights[1] +
-                                        vertices_ss[triangleIdx + 2].position.z * weights[2];
-                        // TODO: simplify
-                        if (depth < m_DepthBuffer[px + (py * m_Width)])
+                        const float depth {pos0.z * weights[0] + pos1.z * weights[1] + pos2.z * weights[2]};
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (depth < m_DepthBuffer[bufferIdx])
                         {
-                            m_DepthBuffer[px + (py * m_Width)] = depth;
+                            m_DepthBuffer[bufferIdx] = depth;
 
                             // Color
-                            finalColor = triangle_vertices_world_todo_4[triangleIdx].color * weights[0] +
-                                     triangle_vertices_world_todo_4[triangleIdx + 1].color * weights[1] +
-                                     triangle_vertices_world_todo_4[triangleIdx + 2].color * weights[2];
+                            finalColor = colors::White;
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
                     }
