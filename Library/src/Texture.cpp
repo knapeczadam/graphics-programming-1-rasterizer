@@ -2,6 +2,8 @@
 #include "Vector2.h"
 #include <SDL_image.h>
 
+#include <iostream>
+
 namespace dae
 {
     Texture::Texture(SDL_Surface* pSurface) :
@@ -21,18 +23,28 @@ namespace dae
 
     Texture* Texture::LoadFromFile(const std::string& path)
     {
-        //TODO
-        //Load SDL_Surface using IMG_LOAD
-        //Create & Return a new Texture Object (using SDL_Surface)
-
-        return nullptr;
+        SDL_Surface* pSurface = IMG_Load(path.c_str());
+        if (!pSurface)
+        {
+            std::cout << "Texture::LoadFromFile() failed: " << SDL_GetError() << std::endl;
+            return nullptr;
+        }
+        return new Texture(pSurface);
     }
 
+    /**
+     * \brief Sample the correct texel for the given uv
+     * \param uv 
+     * \return 
+     */
     ColorRGB Texture::Sample(const Vector2& uv) const
     {
-        //TODO
-        //Sample the correct texel for the given uv
-
-        return {};
+        const int x{static_cast<int>(uv.x * static_cast<float>(m_pSurface->w))};
+        const int y{static_cast<int>(uv.y * static_cast<float>(m_pSurface->h))};
+        const int index{y * m_pSurface->w + x};
+        const uint32_t pixel{m_pSurfacePixels[index]};
+        uint8_t r, g, b, a;
+        SDL_GetRGBA(pixel, m_pSurface->format, &r, &g, &b, &a);
+        return ColorRGB{static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f};
     }
 }

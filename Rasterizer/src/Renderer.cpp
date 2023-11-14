@@ -78,15 +78,15 @@ namespace dae
         Mesh
         {
             {
-                Vertex{{-3, 3, -2}},
-                Vertex{{0, 3, -2}},
-                Vertex{{3, 3, -2}},
-                Vertex{{-3, 0, -2}},
-                Vertex{{0, 0, -2}},
-                Vertex{{3, 0, -2}},
-                Vertex{{-3, -3, -2}},
-                Vertex{{0, -3, -2}},
-                Vertex{{3, -3, -2}}
+                Vertex{{-3, 3, -2}, {},{0, 0} },
+                Vertex{{0, 3, -2}, {}, {0.5f, 0}},
+                Vertex{{3, 3, -2}, {}, {1, 0}},
+                Vertex{{-3, 0, -2}, {}, {0, 0.5f}},
+                Vertex{{0, 0, -2}, {}, {0.5f, 0.5f}},
+                Vertex{{3, 0, -2}, {}, {1, 0.5f}},
+                Vertex{{-3, -3, -2}, {}, {0, 1}},
+                Vertex{{0, -3, -2}, {}, {0.5f, 1}},
+                Vertex{{3, -3, -2}, {}, {1, 1}}
             },
             {
                 3, 0, 4, 1, 5, 2,
@@ -122,6 +122,9 @@ namespace dae
         const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
         m_Camera.SetAspectRatio(aspectRatio);
 
+        // Texture
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+
         // --- ASSERTS ---
         assert(not meshes_world_list.empty() and "Meshes list is empty");
         assert(not meshes_world_strip.empty() and "Meshes strip is empty");
@@ -130,6 +133,7 @@ namespace dae
     Renderer::~Renderer()
     {
         //delete[] m_pDepthBufferPixels;
+        delete m_pTexture;
     }
 
     void Renderer::Update(Timer* pTimer)
@@ -203,6 +207,9 @@ namespace dae
             // SCREEN
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+
+            // UV
+            vertex_out.uv = vertex_in.uv;
         }
     }
 
@@ -591,6 +598,87 @@ namespace dae
 
     void Renderer::Render_W2_TODO_3()
     {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+
+        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        for (size_t idx{0}; idx < indices.size() - 2; ++idx)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex v0;
+            Vertex v1;
+            Vertex v2;
+
+            // Check for degenarate triangles
+            if (idx0 == idx1 or idx1 == idx2 or idx2 == idx0) continue;
+                
+            v0 = vertices_ss[idx0];
+
+            if (idx % 2 == 0)
+            {
+                v1 = vertices_ss[idx1];
+                v2 = vertices_ss[idx2];
+            }
+            else
+            {
+                v1 = vertices_ss[idx2];
+                v2 = vertices_ss[idx1];
+            }
+
+            // Triangle's vertices' positions
+            const Vector3& pos0{v0.position};
+            const Vector3& pos1{v1.position};
+            const Vector3& pos2{v2.position};
+
+            // Create bounding box
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+
+            // Clamp bounding box to screen
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate depth
+                        const float depth {pos0.z * weights[0] + pos1.z * weights[1] + pos2.z * weights[2]};
+
+                        // Interpolate UV
+                        const Vector2 uv {v0.uv * weights[0] + v1.uv * weights[1] + v2.uv * weights[2]};
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (depth < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = depth;
+
+                            // Color
+                            finalColor = m_pTexture->Sample(uv);
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     bool Renderer::SaveBufferToImage() const

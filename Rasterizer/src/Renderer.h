@@ -64,7 +64,9 @@ namespace dae
 
         SDL_Surface* m_pFrontBuffer{nullptr};
         SDL_Surface* m_pBackBuffer{nullptr};
-        uint32_t* m_pBackBufferPixels{};
+        uint32_t* m_pBackBufferPixels{nullptr};
+
+        Texture* m_pTexture{nullptr};
 
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer{};
