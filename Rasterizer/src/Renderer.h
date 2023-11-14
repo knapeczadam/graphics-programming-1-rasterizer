@@ -58,6 +58,7 @@ namespace dae
         void Render_W2_TODO_1();
         void Render_W2_TODO_2();
         void Render_W2_TODO_3();
+        void Render_W2_TODO_4();
 
     private:
         SDL_Window* m_pWindow{};

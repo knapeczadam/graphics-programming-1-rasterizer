@@ -171,6 +171,8 @@ namespace dae
         Render_W2_TODO_2();
 #elif TODO_3
         Render_W2_TODO_3();
+#elif TODO_4
+        Render_W2_TODO_4();
 #endif
 
         // --- WEEK 3 ---
@@ -207,7 +209,9 @@ namespace dae
             // SCREEN
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
-
+            // DEPTH
+            assert(v4_ndc.z != 0.0f and "Renderer::VertexTransformationFromWorldToScreen: Division by zero");
+            vertex_out.position.z = v4_ndc.z;
             // UV
             vertex_out.uv = vertex_in.uv;
         }
@@ -422,7 +426,7 @@ namespace dae
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
-                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
                     if (IsPointInTriangle(pixel, v0, v1, v2, weights))
@@ -490,7 +494,7 @@ namespace dae
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
-                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
                     
@@ -572,7 +576,7 @@ namespace dae
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
-                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
                     
@@ -654,7 +658,7 @@ namespace dae
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
-                    Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
                     
@@ -665,6 +669,97 @@ namespace dae
 
                         // Interpolate UV
                         const Vector2 uv {v0.uv * weights[0] + v1.uv * weights[1] + v2.uv * weights[2]};
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (depth < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = depth;
+
+                            // Color
+                            finalColor = m_pTexture->Sample(uv);
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Renderer::Render_W2_TODO_4()
+    {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+
+        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        for (size_t idx{0}; idx < indices.size() - 2; ++idx)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex v0;
+            Vertex v1;
+            Vertex v2;
+
+            // Check for degenarate triangles
+            if (idx0 == idx1 or idx1 == idx2 or idx2 == idx0) continue;
+                
+            v0 = vertices_ss[idx0];
+
+            if (idx % 2 == 0)
+            {
+                v1 = vertices_ss[idx1];
+                v2 = vertices_ss[idx2];
+            }
+            else
+            {
+                v1 = vertices_ss[idx2];
+                v2 = vertices_ss[idx1];
+            }
+
+            // Triangle's vertices' positions
+            const Vector3& pos0{v0.position};
+            const Vector3& pos1{v1.position};
+            const Vector3& pos2{v2.position};
+
+            // Create bounding box
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+
+            // Clamp bounding box to screen
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate depth
+                        const float weightedV0Depth{1.0f / pos0.z * weights[0]};
+                        const float weightedV1Depth{1.0f / pos1.z * weights[1]};
+                        const float weightedV2Depth{1.0f / pos2.z * weights[2]};
+                        const float depth{1.0f / (weightedV0Depth + weightedV1Depth + weightedV2Depth)};
+
+                        // Interpolate UV
+                        const Vector2 weightedV0UV{v0.uv / pos0.z * weights[0]};
+                        const Vector2 weightedV1UV{v1.uv / pos1.z * weights[1]};
+                        const Vector2 weightedV2UV{v2.uv / pos2.z * weights[2]};
+                        const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * depth};
                         
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (depth < m_DepthBuffer[bufferIdx])
