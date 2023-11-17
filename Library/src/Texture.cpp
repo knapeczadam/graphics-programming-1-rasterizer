@@ -45,8 +45,8 @@ namespace dae
         const int y{static_cast<int>(uv.y * static_cast<float>(m_pSurface->h))};
         const int index{y * m_pSurface->w + x};
         const uint32_t pixel{m_pSurfacePixels[index]};
-        uint8_t r, g, b, a;
-        SDL_GetRGBA(pixel, m_pSurface->format, &r, &g, &b, &a);
+        uint8_t r, g, b;
+        SDL_GetRGB(pixel, m_pSurface->format, &r, &g, &b);
         return ColorRGB{static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f};
     }
 }
