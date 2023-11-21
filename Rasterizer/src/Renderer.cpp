@@ -49,7 +49,7 @@ namespace dae
         {{-3.0f, -2.0f, 2.0f}, {0.0f, 0.0f, 1.0f}}
     };
 
-    const std::vector<Mesh> meshes_world_list =
+    std::vector<Mesh> meshes_world_list =
     {
         Mesh
         {
@@ -98,7 +98,7 @@ namespace dae
     };
 
     // SS = Screen Space
-    std::vector<Vertex> vertices_ss(9);
+    std::vector<Vertex> vertices_ss{};
 
     std::array<float, 3> weights{};
     // -------------------------
@@ -122,8 +122,22 @@ namespace dae
         const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
         m_Camera.SetAspectRatio(aspectRatio);
 
-        // Texture
-        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        // --- TEXTURES ---
+        // UV
+        // m_pTexture = Texture::LoadFromFile("Resources/uv_grid.png");
+        // m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        
+        // Tuktuk
+        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+
+        // --- OBJECTS ---
+        // Tuktuk
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+        
+        // Vehicle
+        // Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+
+        vertices_ss.resize(meshes_world_strip[0].vertices.size());
 
         // --- ASSERTS ---
         assert(not meshes_world_list.empty() and "Meshes list is empty");
@@ -179,6 +193,15 @@ namespace dae
 
         // --- WEEK 3 ---
 #elif W3
+#if TODO_0
+        Render_W3_TODO_0();
+#elif TODO_1
+        Render_W3_TODO_1();
+#elif TODO_2
+        Render_W3_TODO_2();
+#elif TODO_3
+        Render_W3_TODO_3();
+#endif
 
         // --- WEEK 4 ---
 #elif W4
@@ -872,6 +895,94 @@ namespace dae
             }
         }
     }
+    
+    void Renderer::Render_W3_TODO_0()
+    {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+
+        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        for (size_t idx{0}; idx < indices.size(); idx+=3)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex& v0{vertices_ss[idx0]};
+            Vertex& v1{vertices_ss[idx1]};
+            Vertex& v2{vertices_ss[idx2]};
+
+            // Triangle's vertices' positions
+            const Vector3& pos0{v0.position};
+            const Vector3& pos1{v1.position};
+            const Vector3& pos2{v2.position};
+
+            // Create bounding box
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+
+            // Clamp bounding box to screen + stretch by 1 pixel
+            minX = std::max(--minX, 0);
+            maxX = std::min(++maxX, m_Width - 1);
+            minY = std::max(--minY, 0);
+            maxY = std::min(++maxY, m_Height - 1);
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate depth
+                        const float weightedV0Depth{1.0f / pos0.z * weights[0]};
+                        const float weightedV1Depth{1.0f / pos1.z * weights[1]};
+                        const float weightedV2Depth{1.0f / pos2.z * weights[2]};
+                        const float depth{1.0f / (weightedV0Depth + weightedV1Depth + weightedV2Depth)};
+
+                        // Interpolate UV
+                        const Vector2 weightedV0UV{v0.uv / pos0.z * weights[0]};
+                        const Vector2 weightedV1UV{v1.uv / pos1.z * weights[1]};
+                        const Vector2 weightedV2UV{v2.uv / pos2.z * weights[2]};
+                        const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * depth};
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (depth < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = depth;
+
+                            // Diffuse
+                            finalColor = m_pTexture->Sample(uv);
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Renderer::Render_W3_TODO_1()
+    {
+    }
+
+    void Renderer::Render_W3_TODO_2()
+    {
+    }
+
+    void Renderer::Render_W3_TODO_3()
+    {
+    }
+
 
     bool Renderer::SaveBufferToImage() const
     {

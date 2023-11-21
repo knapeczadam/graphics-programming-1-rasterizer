@@ -20,9 +20,9 @@ namespace dae
 
             //TODO: Enable the code below after uncommenting all the vertex attributes of DataTypes::Vertex
             // >> Comment/Remove '#define DISABLE_OBJ'
-            assert(false && "OBJ PARSER not enabled! Check the comments in Utils::ParseOBJ");
+            // assert(false && "OBJ PARSER not enabled! Check the comments in Utils::ParseOBJ");
 
-#else
+// #else
 
 			std::ifstream file(filename);
 			if (!file)

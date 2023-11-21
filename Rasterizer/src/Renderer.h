@@ -61,6 +61,11 @@ namespace dae
         void Render_W2_TODO_4();
         void Render_W2_TODO_5();
 
+        void Render_W3_TODO_0();
+        void Render_W3_TODO_1();
+        void Render_W3_TODO_2();
+        void Render_W3_TODO_3();
+
     private:
         SDL_Window* m_pWindow{};
 
@@ -68,7 +73,8 @@ namespace dae
         SDL_Surface* m_pBackBuffer{nullptr};
         uint32_t* m_pBackBufferPixels{nullptr};
 
-        Texture* m_pTexture{nullptr};
+        // General texture
+        Texture* m_pTexture           {nullptr};
 
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer{};

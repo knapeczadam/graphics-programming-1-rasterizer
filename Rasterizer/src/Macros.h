@@ -5,14 +5,14 @@
 namespace dae
 {
     #define W1 false
-    #define W2 true
-    #define W3 false
+    #define W2 false
+    #define W3 true
     #define W4 false
 
-    #define TODO_0 false
+    #define TODO_0 true
     #define TODO_1 false
     #define TODO_2 false
     #define TODO_3 false
     #define TODO_4 false
-    #define TODO_5 true    
+    #define TODO_5 false    
 }
