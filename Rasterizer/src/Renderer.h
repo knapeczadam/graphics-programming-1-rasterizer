@@ -70,6 +70,7 @@ namespace dae
         void Render_W3_TODO_1();
         void Render_W3_TODO_2();
         void Render_W3_TODO_3();
+        void Render_W3_TODO_4();
 
     private:
         SDL_Window* m_pWindow{};
@@ -91,7 +92,9 @@ namespace dae
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer{};
 
-        Camera m_Camera{};
+        Camera m_Camera        {};
+        float  m_RotationAngle {5.0f};
+        float  m_RotationSpeed {10.0f};
 
         int m_Width{};
         int m_Height{};

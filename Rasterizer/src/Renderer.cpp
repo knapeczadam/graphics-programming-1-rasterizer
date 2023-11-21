@@ -72,6 +72,8 @@ namespace dae
             PrimitiveTopology::TriangleList
         },
     };
+    
+    std::vector<Mesh> meshes_world_list_transformed;
 
     std::vector<Mesh> meshes_world_strip
     {
@@ -143,6 +145,18 @@ namespace dae
     void Renderer::Update(Timer* pTimer)
     {
         m_Camera.Update(pTimer);
+        
+        // --- WEEK 3 ---
+#if W3
+#if TODO_4
+        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * pTimer->GetTotal()};
+        const auto rotMatrix{Matrix::CreateRotationY(yaw)};
+        for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
+        {
+            meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
+        }
+#endif
+#endif
     }
 
     void Renderer::Render()
@@ -191,6 +205,8 @@ namespace dae
         Render_W3_TODO_2();
 #elif TODO_3
         Render_W3_TODO_3();
+#elif TODO_4
+        Render_W3_TODO_4();
 #endif
 
         // --- WEEK 4 ---
@@ -246,7 +262,9 @@ namespace dae
 #elif TODO_2
         m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f}); 
 #elif TODO_3
-        m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f}); 
+        m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f});
+#elif TODO_4
+        m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f});
 #endif
 
         // --- WEEK 4 ---
@@ -300,16 +318,20 @@ namespace dae
         // --- WEEK 3 ---
 #elif W3
 #if TODO_0
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
-        vertices_ss.resize(meshes_world_strip[0].vertices.size());
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        vertices_ss.resize(meshes_world_list[0].vertices.size());
 #elif TODO_1
         vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
 #elif TODO_2
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
-        vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_3
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
-        vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        vertices_ss_out.resize(meshes_world_list[0].vertices.size());
+#elif TODO_4
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        meshes_world_list_transformed = meshes_world_list;
+        vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #endif
 
         // --- WEEK 4 ---
@@ -371,6 +393,8 @@ namespace dae
 #elif TODO_2
         m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
 #elif TODO_3
+        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+#elif TODO_4
         m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
 #endif
 
@@ -1099,9 +1123,9 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+        VertexTransformationFromWorldToScreen(meshes_world_list[0].vertices, vertices_ss);
 
-        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        const std::vector<uint32_t>& indices{meshes_world_list[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
         {
             // Triangle's indices
@@ -1274,9 +1298,9 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV2(meshes_world_strip[0].vertices, vertices_ss_out);
+        VertexTransformationFromWorldToScreenV2(meshes_world_list[0].vertices, vertices_ss_out);
 
-        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        const std::vector<uint32_t>& indices{meshes_world_list[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
         {
             // Triangle's indices
@@ -1357,9 +1381,9 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV2(meshes_world_strip[0].vertices, vertices_ss_out);
+        VertexTransformationFromWorldToScreenV2(meshes_world_list[0].vertices, vertices_ss_out);
 
-        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        const std::vector<uint32_t>& indices{meshes_world_list[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
         {
             // Triangle's indices
@@ -1414,6 +1438,89 @@ namespace dae
                             
                             // Color
                             finalColor = ColorRGB{interpolatedZBuffer, interpolatedZBuffer, interpolatedZBuffer};
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Renderer::Render_W3_TODO_4()
+    {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreenV2(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+
+        const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
+        for (size_t idx{0}; idx < indices.size(); idx+=3)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex_Out& v0{vertices_ss_out[idx0]};
+            Vertex_Out& v1{vertices_ss_out[idx1]};
+            Vertex_Out& v2{vertices_ss_out[idx2]};
+
+            // Triangle's vertices' positions
+            const Vector4& pos0{v0.position};
+            const Vector4& pos1{v1.position};
+            const Vector4& pos2{v2.position};
+
+            // Create bounding box
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+
+            // Clamp bounding box to screen + stretch by 1 pixel
+            minX = std::max(--minX, 0);
+            maxX = std::min(++maxX, m_Width - 1);
+            minY = std::max(--minY, 0);
+            maxY = std::min(++maxY, m_Height - 1);
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate Z-Buffer
+                        const float weightedZBufferV0{1.0f / pos0.z * weights[0]};
+                        const float weightedZBufferV1{1.0f / pos1.z * weights[1]};
+                        const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
+                        const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
+
+                        if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
+
+                            // Interpolate View Space depth
+                            const float weightedViewSpaceDepthV0{1.0f / pos0.w * weights[0]};
+                            const float weightedViewSpaceDepthV1{1.0f / pos1.w * weights[1]};
+                            const float weightedViewSpaceDepthV2{1.0f / pos2.w * weights[2]};
+                            const float interpolatedViewSpaceDepth{1.0f / (weightedViewSpaceDepthV0 + weightedViewSpaceDepthV1 + weightedViewSpaceDepthV2)};
+
+                            // Interpolate UV
+                            const Vector2 weightedV0UV{v0.uv / pos0.w * weights[0]};
+                            const Vector2 weightedV1UV{v1.uv / pos1.w * weights[1]};
+                            const Vector2 weightedV2UV{v2.uv / pos2.w * weights[2]};
+                            const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+                            
+                            // Color
+                            finalColor = m_pTexture->Sample(uv);
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
                     }
