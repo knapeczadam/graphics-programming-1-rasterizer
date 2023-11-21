@@ -238,6 +238,7 @@ namespace dae
 #elif TODO_4
         m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
 #elif TODO_5
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
 #endif
 
         // --- WEEK 2 ---
