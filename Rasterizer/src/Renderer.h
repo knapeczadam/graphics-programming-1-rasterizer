@@ -40,6 +40,7 @@ namespace dae
         bool SaveBufferToImage() const;
         inline Camera& GetCamera() { return m_Camera; }
         void ToggleDepthVisualization();
+        void ToggleBoundingBoxVisualization();
 
     private:
         void InitCamera();
@@ -71,6 +72,7 @@ namespace dae
         void Render_W3_TODO_2();
         void Render_W3_TODO_3();
         void Render_W3_TODO_4();
+        void Render_W3_TODO_5();
 
     private:
         SDL_Window* m_pWindow{};
@@ -92,6 +94,7 @@ namespace dae
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer {};
         bool m_VisualizeDepthBuffer {false};
+        bool m_VisualizeBoundingBox {false};
 
         Camera m_Camera        {};
         float  m_RotationAngle {5.0f};
