@@ -552,6 +552,8 @@ namespace dae
                 const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
+
+                // Point - Triangle test
                 if (IsPointInTriangleFast(pixel, v0, v1, v2))
                 {
                     finalColor = colors::White;
@@ -585,6 +587,8 @@ namespace dae
                 const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
+
+                // Point - Triangle test
                 if (IsPointInTriangle(pixel, v0, v1, v2))
                 {
                     finalColor = colors::White;
@@ -609,6 +613,8 @@ namespace dae
                 const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                 ColorRGB finalColor{colors::Black};
+
+                // Point - Triangle test
                 if (IsPointInTriangle(pixel, v0, v1, v2, weights))
                 {
                     finalColor = triangle_vertices_world_todo_3[0].color * weights[0] +
@@ -641,12 +647,16 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, v0, v1, v2, weights))
                     {
                         // Depth
                         const float depth = vertices_ss[triangleIdx].position.z * weights[0] +
                                         vertices_ss[triangleIdx + 1].position.z * weights[1] +
                                         vertices_ss[triangleIdx + 2].position.z * weights[2];
+                        
+                        // Z-test
                         if (depth < m_DepthBuffer[px + (py * m_Width)])
                         {
                             m_DepthBuffer[px + (py * m_Width)] = depth;
@@ -696,13 +706,16 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, v0, v1, v2, weights))
                     {
                         // Depth
                         const float depth = vertices_ss[triangleIdx].position.z * weights[0] +
                                         vertices_ss[triangleIdx + 1].position.z * weights[1] +
                                         vertices_ss[triangleIdx + 2].position.z * weights[2];
-                        // TODO: simplify
+
+                        // Z-test
                         if (depth < m_DepthBuffer[px + (py * m_Width)])
                         {
                             m_DepthBuffer[px + (py * m_Width)] = depth;
@@ -743,8 +756,7 @@ namespace dae
             const Vector3& pos0{v0.position};
             const Vector3& pos1{v1.position};
             const Vector3& pos2{v2.position};
-
-
+            
             // Create bounding box
             int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
             int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
@@ -764,12 +776,14 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Depth
                         const float depth {pos0.z * weights[0] + pos1.z * weights[1] + pos2.z * weights[2]};
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (depth < m_DepthBuffer[bufferIdx])
                         {
@@ -847,12 +861,14 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Depth
                         const float depth {pos0.z * weights[0] + pos1.z * weights[1] + pos2.z * weights[2]};
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (depth < m_DepthBuffer[bufferIdx])
                         {
@@ -930,7 +946,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate depth
@@ -938,7 +955,8 @@ namespace dae
 
                         // Interpolate UV
                         const Vector2 uv {v0.uv * weights[0] + v1.uv * weights[1] + v2.uv * weights[2]};
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (depth < m_DepthBuffer[bufferIdx])
                         {
@@ -1016,7 +1034,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate depth
@@ -1030,7 +1049,8 @@ namespace dae
                         const Vector2 weightedV1UV{v1.uv / pos1.z * weights[1]};
                         const Vector2 weightedV2UV{v2.uv / pos2.z * weights[2]};
                         const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * depth};
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (depth < m_DepthBuffer[bufferIdx])
                         {
@@ -1089,17 +1109,18 @@ namespace dae
             const Vector3& pos1{v1.position};
             const Vector3& pos2{v2.position};
 
-            // Create bounding box
-            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
-            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
-            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
-            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
 
             // Clamp bounding box to screen + stretch by 1 pixel
-            minX = std::max(--minX, 0);
-            maxX = std::min(++maxX, m_Width - 1);
-            minY = std::max(--minY, 0);
-            maxY = std::min(++maxY, m_Height - 1);
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
 
             for (int px{minX}; px <= maxX; ++px)
             {
@@ -1108,7 +1129,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate depth
@@ -1122,7 +1144,8 @@ namespace dae
                         const Vector2 weightedV1UV{v1.uv / pos1.z * weights[1]};
                         const Vector2 weightedV2UV{v2.uv / pos2.z * weights[2]};
                         const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * depth};
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (depth < m_DepthBuffer[bufferIdx])
                         {
@@ -1164,17 +1187,18 @@ namespace dae
             const Vector3& pos1{v1.position};
             const Vector3& pos2{v2.position};
 
-            // Create bounding box
-            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
-            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
-            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
-            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
 
             // Clamp bounding box to screen + stretch by 1 pixel
-            minX = std::max(--minX, 0);
-            maxX = std::min(++maxX, m_Width - 1);
-            minY = std::max(--minY, 0);
-            maxY = std::min(++maxY, m_Height - 1);
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
 
             for (int px{minX}; px <= maxX; ++px)
             {
@@ -1183,7 +1207,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate depth
@@ -1197,7 +1222,8 @@ namespace dae
                         const Vector2 weightedV1UV{v1.uv / pos1.z * weights[1]};
                         const Vector2 weightedV2UV{v2.uv / pos2.z * weights[2]};
                         const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * depth};
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (depth < m_DepthBuffer[bufferIdx])
                         {
@@ -1256,17 +1282,18 @@ namespace dae
             const Vector4& pos1{v1.position};
             const Vector4& pos2{v2.position};
 
-            // Create bounding box
-            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
-            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
-            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
-            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
 
             // Clamp bounding box to screen + stretch by 1 pixel
-            minX = std::max(--minX, 0);
-            maxX = std::min(++maxX, m_Width - 1);
-            minY = std::max(--minY, 0);
-            maxY = std::min(++maxY, m_Height - 1);
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
 
             for (int px{minX}; px <= maxX; ++px)
             {
@@ -1275,7 +1302,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate Z-Buffer
@@ -1284,8 +1312,10 @@ namespace dae
                         const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
                         const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
 
+                        // Frustum culling
                         if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
                         {
@@ -1339,17 +1369,18 @@ namespace dae
             const Vector4& pos1{v1.position};
             const Vector4& pos2{v2.position};
 
-            // Create bounding box
-            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
-            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
-            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
-            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
 
-            // Clamp bounding box to screen + stretch by 1 pixel
-            minX = std::max(--minX, 0);
-            maxX = std::min(++maxX, m_Width - 1);
-            minY = std::max(--minY, 0);
-            maxY = std::min(++maxY, m_Height - 1);
+            // Clamp bounding box
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
 
             for (int px{minX}; px <= maxX; ++px)
             {
@@ -1358,7 +1389,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate Z-Buffer
@@ -1367,8 +1399,10 @@ namespace dae
                         const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
                         const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
 
+                        // Frustum culling
                         if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
                         {
@@ -1422,17 +1456,18 @@ namespace dae
             const Vector4& pos1{v1.position};
             const Vector4& pos2{v2.position};
 
-            // Create bounding box
-            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
-            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
-            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
-            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
 
-            // Clamp bounding box to screen + stretch by 1 pixel
-            minX = std::max(--minX, 0);
-            maxX = std::min(++maxX, m_Width - 1);
-            minY = std::max(--minY, 0);
-            maxY = std::min(++maxY, m_Height - 1);
+            // Clamp bounding box
+            minX = std::max(minX, 0);
+            maxX = std::min(maxX, m_Width - 1);
+            minY = std::max(minY, 0);
+            maxY = std::min(maxY, m_Height - 1);
 
             for (int px{minX}; px <= maxX; ++px)
             {
@@ -1441,7 +1476,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate Z-Buffer
@@ -1450,8 +1486,10 @@ namespace dae
                         const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
                         const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
 
+                        // Frustum culling
                         if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
                         {
@@ -1513,17 +1551,18 @@ namespace dae
             const Vector4& pos1{v1.position};
             const Vector4& pos2{v2.position};
 
-            // Create bounding box
-            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
-            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
-            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
-            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            const int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            const int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            const int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            const int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
 
-            // Clamp bounding box to screen + stretch by 1 pixel
-            if (--minX < 0)         continue;
-            if (++maxX >= m_Width)  continue;
-            if (--minY < 0)         continue;
-            if (++maxY >= m_Height) continue;
+            // Clamp bounding box
+            if (minX < 0)         continue;
+            if (maxX >= m_Width)  continue;
+            if (minY < 0)         continue;
+            if (maxY >= m_Height) continue;
 
             for (int px{minX}; px <= maxX; ++px)
             {
@@ -1532,7 +1571,8 @@ namespace dae
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
 
                     ColorRGB finalColor{colors::Black};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate Z-Buffer
@@ -1541,8 +1581,10 @@ namespace dae
                         const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
                         const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
 
+                        // Frustum culling
                         if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
                         {
@@ -1604,17 +1646,18 @@ namespace dae
             const Vector4& pos1{v1.position};
             const Vector4& pos2{v2.position};
 
-            // Create bounding box
-            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
-            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
-            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
-            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            const int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            const int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            const int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            const int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
 
-            // Clamp bounding box to screen + stretch by 1 pixel
-            if (--minX < 0)         continue;
-            if (++maxX >= m_Width)  continue;
-            if (--minY < 0)         continue;
-            if (++maxY >= m_Height) continue;
+            // Clamp bounding box
+            if (minX < 0)         continue;
+            if (maxX >= m_Width)  continue;
+            if (minY < 0)         continue;
+            if (maxY >= m_Height) continue;
 
             ColorRGB finalColor{colors::Black};
             for (int px{minX}; px <= maxX; ++px)
@@ -1629,7 +1672,8 @@ namespace dae
                     }
                     
                     const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
-                    
+
+                    // Point - Triangle test
                     if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
                     {
                         // Interpolate Z-Buffer
@@ -1638,8 +1682,10 @@ namespace dae
                         const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
                         const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
 
+                        // Frustum culling
                         if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
-                        
+
+                        // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};
                         if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
                         {
