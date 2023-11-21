@@ -1185,6 +1185,75 @@ namespace dae
 
     void Renderer::Render_W3_TODO_3()
     {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreenV2(meshes_world_strip[0].vertices, vertices_ss_out);
+
+        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        for (size_t idx{0}; idx < indices.size(); idx+=3)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex_Out& v0{vertices_ss_out[idx0]};
+            Vertex_Out& v1{vertices_ss_out[idx1]};
+            Vertex_Out& v2{vertices_ss_out[idx2]};
+
+            // Triangle's vertices' positions
+            const Vector4& pos0{v0.position};
+            const Vector4& pos1{v1.position};
+            const Vector4& pos2{v2.position};
+
+            // Create bounding box
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+
+            // Clamp bounding box to screen + stretch by 1 pixel
+            minX = std::max(--minX, 0);
+            maxX = std::min(++maxX, m_Width - 1);
+            minY = std::max(--minY, 0);
+            maxY = std::min(++maxY, m_Height - 1);
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate Z-Buffer
+                        const float weightedZBufferV0{1.0f / pos0.z * weights[0]};
+                        const float weightedZBufferV1{1.0f / pos1.z * weights[1]};
+                        const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
+                        const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
+
+                        if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
+                            
+                            // Color
+                            finalColor = ColorRGB{interpolatedZBuffer, interpolatedZBuffer, interpolatedZBuffer};
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    {
     }
 
 
