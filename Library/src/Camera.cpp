@@ -120,7 +120,7 @@ namespace dae
         else if (rightMouseButtonDown)
         {
             totalYaw += static_cast<float>(mouseX) * rotationSpeed * deltaTime;
-            totalPitch += static_cast<float>(mouseY) * rotationSpeed * deltaTime;
+            totalPitch += static_cast<float>(mouseY * -1) * rotationSpeed * deltaTime;
         }
         if (mouseX or mouseY)
         {
