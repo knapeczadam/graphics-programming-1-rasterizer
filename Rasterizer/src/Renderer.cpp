@@ -15,9 +15,7 @@
 
 namespace dae
 {
-    // -------------------------
-    // --- Global Variables ----
-    // -------------------------
+#pragma region Global Variables
     const std::vector<Vertex> triangle_vertices_ndc
     {
         {{0.0f, 0.5f, 1.0f}},
@@ -104,7 +102,7 @@ namespace dae
     std::vector<Vertex_Out> vertices_ss_out{};
 
     std::array<float, 3> weights{};
-    // -------------------------
+#pragma endregion
 
     Renderer::Renderer(SDL_Window* pWindow) :
         m_pWindow(pWindow)
@@ -241,6 +239,7 @@ namespace dae
         m_VisualizeBoundingBox = not m_VisualizeBoundingBox;
     }
 
+#pragma region Initialization
     void Renderer::InitCamera()
     {
         const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
@@ -437,7 +436,9 @@ namespace dae
 #endif
 #endif
     }
+#pragma endregion
 
+#pragma region Transformations
     void Renderer::VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
@@ -505,7 +506,9 @@ namespace dae
             vertex_out.position.y = (1.0f - vertex_in.position.y) * 0.5f * static_cast<float>(m_Height);
         }
     }
+#pragma endregion
 
+#pragma region Helper Functions
     int Renderer::GetBufferIndex(int x, int y) const
     {
         return x + (y * m_Width);
@@ -521,6 +524,12 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.g * 255),
                                                               static_cast<uint8_t>(finalColor.b * 255));
     }
+    
+    bool Renderer::SaveBufferToImage() const
+    {
+        return SDL_SaveBMP(m_pBackBuffer, "Rasterizer_ColorBuffer.bmp");
+    }
+#pragma endregion
 
 #pragma region Week 1
     void Renderer::Render_W1_TODO_0() const
@@ -1749,9 +1758,4 @@ namespace dae
     {
     }
 #pragma endregion
-
-    bool Renderer::SaveBufferToImage() const
-    {
-        return SDL_SaveBMP(m_pBackBuffer, "Rasterizer_ColorBuffer.bmp");
-    }
 }
