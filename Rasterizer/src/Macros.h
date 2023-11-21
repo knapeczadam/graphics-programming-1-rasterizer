@@ -10,8 +10,8 @@ namespace dae
     #define W4 false
 
     #define TODO_0 false
-    #define TODO_1 true
-    #define TODO_2 false
+    #define TODO_1 false
+    #define TODO_2 true
     #define TODO_3 false
     #define TODO_4 false
     #define TODO_5 false    

@@ -47,7 +47,7 @@ namespace dae
         float   fov         {0.0f};
         float   aspectRatio {0.0f};
         float   nearPlane   {1.0f};
-        float   farPlane    {20.0f};
+        float   farPlane    {50.0f};
 
         Vector3 forward {Vector3::UnitZ};
         Vector3 up      {Vector3::UnitY};
