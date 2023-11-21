@@ -1457,7 +1457,6 @@ namespace dae
                             // Color
                             if (m_VisualizeDepthBuffer)
                             {
-                                // std::cout << interpolatedZBuffer << std::endl;
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
                             }
@@ -1506,10 +1505,10 @@ namespace dae
             int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
 
             // Clamp bounding box to screen + stretch by 1 pixel
-            minX = std::max(--minX, 0);
-            maxX = std::min(++maxX, m_Width - 1);
-            minY = std::max(--minY, 0);
-            maxY = std::min(++maxY, m_Height - 1);
+            if (--minX < 0)         continue;
+            if (++maxX >= m_Width)  continue;
+            if (--minY < 0)         continue;
+            if (++maxY >= m_Height) continue;
 
             for (int px{minX}; px <= maxX; ++px)
             {
@@ -1547,7 +1546,15 @@ namespace dae
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
                             
                             // Color
-                            finalColor = m_pTexture->Sample(uv);
+                            if (m_VisualizeDepthBuffer)
+                            {
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
+                            }
+                            else
+                            {
+                                finalColor = m_pTexture->Sample(uv);
+                            }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
                     }
