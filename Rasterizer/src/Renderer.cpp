@@ -99,6 +99,7 @@ namespace dae
 
     // SS = Screen Space
     std::vector<Vertex> vertices_ss{};
+    std::vector<Vertex_Out> vertices_ss_out{};
 
     std::array<float, 3> weights{};
     // -------------------------
@@ -125,19 +126,20 @@ namespace dae
         // --- TEXTURES ---
         // UV
         // m_pTexture = Texture::LoadFromFile("Resources/uv_grid.png");
-        // m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
         
         // Tuktuk
-        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+        // m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
 
         // --- OBJECTS ---
         // Tuktuk
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+        // Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
         
         // Vehicle
         // Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
 
         vertices_ss.resize(meshes_world_strip[0].vertices.size());
+        vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
 
         // --- ASSERTS ---
         assert(not meshes_world_list.empty() and "Meshes list is empty");
@@ -224,10 +226,10 @@ namespace dae
             // WORLD
             const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
             // VIEW
-            const Vector4 v4_ndc = m_Camera.invViewMatrix.TransformPoint(v4);
+            const Vector4 v4_view = m_Camera.invViewMatrix.TransformPoint(v4);
             // PROJECTION
-            vertex_out.position.x = v4_ndc.x / v4_ndc.z;
-            vertex_out.position.y = v4_ndc.y / v4_ndc.z;
+            vertex_out.position.x = v4_view.x / v4_view.z;
+            vertex_out.position.y = v4_view.y / v4_view.z;
             // NDC
             vertex_out.position.x = vertex_out.position.x / (m_Camera.GetFOV() * m_Camera.GetAspectRatio());
             vertex_out.position.y = vertex_out.position.y / m_Camera.GetFOV();
@@ -235,8 +237,35 @@ namespace dae
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
             // DEPTH
-            assert(v4_ndc.z != 0.0f and "Renderer::VertexTransformationFromWorldToScreen: Division by zero");
-            vertex_out.position.z = v4_ndc.z;
+            assert(v4_view.z != 0.0f and "Renderer::VertexTransformationFromWorldToScreen: Division by zero");
+            vertex_out.position.z = v4_view.z;
+            // UV
+            vertex_out.uv = vertex_in.uv;
+        }
+    }
+
+    void Renderer::VertexTransformationFromWorldToScreenV2(const std::vector<Vertex>& vertices_in,
+        std::vector<Vertex_Out>& vertices_out) const
+    {
+        for (size_t i{0}; i < vertices_in.size(); ++i)
+        {
+            const Vertex& vertex_in = vertices_in[i];
+            Vertex_Out& vertex_out = vertices_out[i];
+
+            // WORLD
+            const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
+            // VIEW - PROJECTION
+            const Vector4 v4_proj = (m_Camera.invViewMatrix * m_Camera.projection).TransformPoint(v4);
+            // NDC
+            vertex_out.position.x = v4_proj.x / v4_proj.w;
+            vertex_out.position.y = v4_proj.y / v4_proj.w;
+            vertex_out.position.z = v4_proj.z / v4_proj.w;
+            // SCREEN
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+            // DEPTH
+            assert(v4_proj.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");
+            vertex_out.position.w = v4_proj.w;
             // UV
             vertex_out.uv = vertex_in.uv;
         }
@@ -973,6 +1002,102 @@ namespace dae
 
     void Renderer::Render_W3_TODO_1()
     {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreenV2(meshes_world_strip[0].vertices, vertices_ss_out);
+
+        const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
+        for (size_t idx{0}; idx < indices.size() - 2; ++idx)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex_Out v0;
+            Vertex_Out v1;
+            Vertex_Out v2;
+
+            // Check for degenarate triangles
+            if (idx0 == idx1 or idx1 == idx2 or idx2 == idx0) continue;
+                
+            v0 = vertices_ss_out[idx0];
+
+            // idx is odd
+            if (idx & 1)
+            {
+                v1 = vertices_ss_out[idx2];
+                v2 = vertices_ss_out[idx1];
+            }
+            else
+            {
+                v1 = vertices_ss_out[idx1];
+                v2 = vertices_ss_out[idx2];
+            }
+
+            // Triangle's vertices' positions
+            const Vector4& pos0{v0.position};
+            const Vector4& pos1{v1.position};
+            const Vector4& pos2{v2.position};
+
+            // Create bounding box
+            int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x)))};
+            int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x)))};
+            int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y)))};
+            int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y)))};
+
+            // Clamp bounding box to screen + stretch by 1 pixel
+            minX = std::max(--minX, 0);
+            maxX = std::min(++maxX, m_Width - 1);
+            minY = std::max(--minY, 0);
+            maxY = std::min(++maxY, m_Height - 1);
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate Z-Buffer
+                        const float weightedZBufferV0{1.0f / pos0.z * weights[0]};
+                        const float weightedZBufferV1{1.0f / pos1.z * weights[1]};
+                        const float weightedZBufferV2{1.0f / pos2.z * weights[2]};
+                        const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
+
+                        if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
+                        
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
+
+                            // Interpolate View Space depth
+                            const float weightedViewSpaceDepthV0{1.0f / pos0.w * weights[0]};
+                            const float weightedViewSpaceDepthV1{1.0f / pos1.w * weights[1]};
+                            const float weightedViewSpaceDepthV2{1.0f / pos2.w * weights[2]};
+                            const float interpolatedViewSpaceDepth{1.0f / (weightedViewSpaceDepthV0 + weightedViewSpaceDepthV1 + weightedViewSpaceDepthV2)};
+
+                            // Interpolate UV
+                            const Vector2 weightedV0UV{v0.uv / pos0.w * weights[0]};
+                            const Vector2 weightedV1UV{v1.uv / pos1.w * weights[1]};
+                            const Vector2 weightedV2UV{v2.uv / pos2.w * weights[2]};
+                            const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+                            
+                            // Color
+                            finalColor = m_pTexture->Sample(uv);
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void Renderer::Render_W3_TODO_2()

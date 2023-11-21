@@ -39,12 +39,15 @@ namespace dae
     public:
         Matrix invViewMatrix {};
         Matrix viewMatrix    {};
+        Matrix projection    {};
 
     private:
         Vector3 origin      {};
-        float   fovAngle    {90.f};
-        float   fov         {tanf((fovAngle * TO_RADIANS) / 2.f)};
-        float   aspectRatio {1.0f};
+        float   fovAngle    {0.0f};
+        float   fov         {0.0f};
+        float   aspectRatio {0.0f};
+        float   nearPlane   {1.0f};
+        float   farPlane    {20.0f};
 
         Vector3 forward {Vector3::UnitZ};
         Vector3 up      {Vector3::UnitY};
