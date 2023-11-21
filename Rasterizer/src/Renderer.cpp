@@ -546,15 +546,16 @@ namespace dae
                 
             v0 = vertices_ss[idx0];
 
-            if (idx % 2 == 0)
-            {
-                v1 = vertices_ss[idx1];
-                v2 = vertices_ss[idx2];
-            }
-            else
+            // idx is odd
+            if (idx & 1)
             {
                 v1 = vertices_ss[idx2];
                 v2 = vertices_ss[idx1];
+            }
+            else
+            {
+                v1 = vertices_ss[idx1];
+                v2 = vertices_ss[idx2];
             }
 
             // Triangle's vertices' positions
@@ -628,15 +629,16 @@ namespace dae
                 
             v0 = vertices_ss[idx0];
 
-            if (idx % 2 == 0)
-            {
-                v1 = vertices_ss[idx1];
-                v2 = vertices_ss[idx2];
-            }
-            else
+            // idx is odd
+            if (idx & 1)
             {
                 v1 = vertices_ss[idx2];
                 v2 = vertices_ss[idx1];
+            }
+            else
+            {
+                v1 = vertices_ss[idx1];
+                v2 = vertices_ss[idx2];
             }
 
             // Triangle's vertices' positions
@@ -713,15 +715,16 @@ namespace dae
                 
             v0 = vertices_ss[idx0];
 
-            if (idx % 2 == 0)
-            {
-                v1 = vertices_ss[idx1];
-                v2 = vertices_ss[idx2];
-            }
-            else
+            // idx is odd
+            if (idx & 1)
             {
                 v1 = vertices_ss[idx2];
                 v2 = vertices_ss[idx1];
+            }
+            else
+            {
+                v1 = vertices_ss[idx1];
+                v2 = vertices_ss[idx2];
             }
 
             // Triangle's vertices' positions
@@ -804,15 +807,16 @@ namespace dae
                 
             v0 = vertices_ss[idx0];
 
-            if (idx % 2 == 0)
-            {
-                v1 = vertices_ss[idx1];
-                v2 = vertices_ss[idx2];
-            }
-            else
+            // idx is odd
+            if (idx & 1)
             {
                 v1 = vertices_ss[idx2];
                 v2 = vertices_ss[idx1];
+            }
+            else
+            {
+                v1 = vertices_ss[idx1];
+                v2 = vertices_ss[idx2];
             }
 
             // Triangle's vertices' positions
