@@ -38,8 +38,8 @@ namespace dae
         void Render();
 
         bool SaveBufferToImage() const;
-
         inline Camera& GetCamera() { return m_Camera; }
+        void ToggleDepthVisualization();
 
     private:
         void InitCamera();
@@ -90,7 +90,8 @@ namespace dae
         
 
         // float* m_pDepthBufferPixels{};
-        std::vector<float> m_DepthBuffer{};
+        std::vector<float> m_DepthBuffer {};
+        bool m_VisualizeDepthBuffer {false};
 
         Camera m_Camera        {};
         float  m_RotationAngle {5.0f};

@@ -61,6 +61,13 @@ namespace dae
         return v;
     }
 
+    inline float Remap(float value, float inputMin, float inputMax, float outputMin, float outputMax)
+    {
+        if (value <= inputMin) return outputMin;
+        if (value >= inputMax) return outputMax;
+        return outputMin + (value - inputMin) * (outputMax - outputMin) / (inputMax - inputMin);
+    }
+
     /**
      * \brief https://www.youtube.com/watch?v=HYAgJN3x4GA
      * ~2X faster than IsPointInTriangleV2

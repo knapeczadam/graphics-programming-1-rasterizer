@@ -220,6 +220,11 @@ namespace dae
         SDL_UpdateWindowSurface(m_pWindow);
     }
 
+    void Renderer::ToggleDepthVisualization()
+    {
+        m_VisualizeDepthBuffer = not m_VisualizeDepthBuffer;
+    }
+
     void Renderer::InitCamera()
     {
         const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
@@ -1437,8 +1442,29 @@ namespace dae
                         {
                             m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
                             
+                            // Interpolate View Space depth
+                            const float weightedViewSpaceDepthV0{1.0f / pos0.w * weights[0]};
+                            const float weightedViewSpaceDepthV1{1.0f / pos1.w * weights[1]};
+                            const float weightedViewSpaceDepthV2{1.0f / pos2.w * weights[2]};
+                            const float interpolatedViewSpaceDepth{1.0f / (weightedViewSpaceDepthV0 + weightedViewSpaceDepthV1 + weightedViewSpaceDepthV2)};
+
+                            // Interpolate UV
+                            const Vector2 weightedV0UV{v0.uv / pos0.w * weights[0]};
+                            const Vector2 weightedV1UV{v1.uv / pos1.w * weights[1]};
+                            const Vector2 weightedV2UV{v2.uv / pos2.w * weights[2]};
+                            const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+
                             // Color
-                            finalColor = ColorRGB{interpolatedZBuffer, interpolatedZBuffer, interpolatedZBuffer};
+                            if (m_VisualizeDepthBuffer)
+                            {
+                                // std::cout << interpolatedZBuffer << std::endl;
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
+                            }
+                            else
+                            {
+                                finalColor = m_pTexture->Sample(uv);
+                            }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
                     }
