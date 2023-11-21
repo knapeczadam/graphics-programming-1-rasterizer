@@ -119,27 +119,9 @@ namespace dae
         m_DepthBuffer.resize(m_Width * m_Height);
 
         //Initialize Camera
-        m_Camera.Initialize(60.f, {.0f, .0f, -10.f});
-        const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
-        m_Camera.SetAspectRatio(aspectRatio);
-
-        // --- TEXTURES ---
-        // UV
-        // m_pTexture = Texture::LoadFromFile("Resources/uv_grid.png");
-        // m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
-        
-        // Tuktuk
-        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
-
-        // --- OBJECTS ---
-        // Tuktuk
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
-        
-        // Vehicle
-        // Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
-
-        vertices_ss.resize(meshes_world_strip[0].vertices.size());
-        vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
+        InitCamera();
+        InitializeOutVertices();
+        InitializeTextures();
 
         // --- ASSERTS ---
         assert(not meshes_world_list.empty() and "Meshes list is empty");
@@ -150,6 +132,12 @@ namespace dae
     {
         //delete[] m_pDepthBufferPixels;
         delete m_pTexture;
+
+        // Vehicle
+        delete m_pTextureDiffuse;
+        delete m_pTextureGlossiness;
+        delete m_pTextureNormal;
+        delete m_pTextureSpecular;
     }
 
     void Renderer::Update(Timer* pTimer)
@@ -216,6 +204,186 @@ namespace dae
         SDL_UpdateWindowSurface(m_pWindow);
     }
 
+    void Renderer::InitCamera()
+    {
+        const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
+        m_Camera.SetAspectRatio(aspectRatio);
+        
+        // --- WEEK 1 ---
+#if W1
+#if TODO_0
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_1
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_2
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_3
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_4
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_5
+#endif
+
+        // --- WEEK 2 ---
+#elif W2
+#if TODO_1
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_2
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_3
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_4
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_5
+#endif
+
+        // --- WEEK 3 ---
+#elif W3
+#if TODO_0
+        m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f}); 
+#elif TODO_1
+        m_Camera.Initialize(60.f, {0.0f, 0.0f, -10.0f}); 
+#elif TODO_2
+        m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f}); 
+#elif TODO_3
+        m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f}); 
+#endif
+
+        // --- WEEK 4 ---
+#elif W4
+#if TODO_0
+#elif TODO_1
+#elif TODO_2
+#elif TODO_3
+#endif
+#endif
+    }
+
+    void Renderer::InitializeOutVertices()
+    {
+        // --- OBJECTS ---
+        // Tuktuk
+        // Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+        
+        // Vehicle
+        // Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+
+        // --- WEEK 1 ---
+#if W1
+#if TODO_0
+#elif TODO_1
+        vertices_ss.resize(triangle_vertices_ndc.size());
+#elif TODO_2
+        vertices_ss.resize(triangle_vertices_world_todo_2.size());
+#elif TODO_3
+        vertices_ss.resize(triangle_vertices_world_todo_3.size());
+#elif TODO_4
+        vertices_ss.resize(triangle_vertices_world_todo_4.size());
+#elif TODO_5
+        vertices_ss.resize(triangle_vertices_world_todo_4.size());
+#endif
+
+        // --- WEEK 2 ---
+#elif W2
+#if TODO_1
+        vertices_ss.resize(meshes_world_list[0].vertices.size());
+#elif TODO_2
+        vertices_ss.resize(meshes_world_strip[0].vertices.size());
+#elif TODO_3
+        vertices_ss.resize(meshes_world_strip[0].vertices.size());
+#elif TODO_4
+        vertices_ss.resize(meshes_world_strip[0].vertices.size());
+#elif TODO_5
+        vertices_ss.resize(meshes_world_strip[0].vertices.size());
+#endif
+
+        // --- WEEK 3 ---
+#elif W3
+#if TODO_0
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+        vertices_ss.resize(meshes_world_strip[0].vertices.size());
+#elif TODO_1
+        vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
+#elif TODO_2
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+        vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
+#elif TODO_3
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
+        vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
+#endif
+
+        // --- WEEK 4 ---
+#elif W4
+#if TODO_0
+#elif TODO_1
+#elif TODO_2
+#elif TODO_3
+#endif
+#endif
+    }
+
+    void Renderer::InitializeTextures()
+    {
+        // --- TEXTURES ---
+        // UV
+        // m_pTexture = Texture::LoadFromFile("Resources/uv_grid.png");
+        // m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        
+        // Tuktuk
+        // m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+
+       // Vehicle
+        // m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
+        // m_pTextureGlossiness = Texture::LoadFromFile("Resources/vehicle_gloss.png");
+        // m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        // m_pTextureSpecular = Texture::LoadFromFile("Resources/vehicle_specular.png");
+        
+        // --- WEEK 1 ---
+#if W1
+#if TODO_0
+#elif TODO_1
+#elif TODO_2
+#elif TODO_3
+#elif TODO_4
+#elif TODO_5
+#endif
+
+        // --- WEEK 2 ---
+#elif W2
+#if TODO_1
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+#elif TODO_2
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+#elif TODO_3
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+#elif TODO_4
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+#elif TODO_5
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+#endif
+
+        // --- WEEK 3 ---
+#elif W3
+#if TODO_0
+        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+#elif TODO_1
+        m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
+#elif TODO_2
+        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+#elif TODO_3
+        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+#endif
+
+        // --- WEEK 4 ---
+#elif W4
+#if TODO_0
+#elif TODO_1
+#elif TODO_2
+#elif TODO_3
+#endif
+#endif
+    }
+
     void Renderer::VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
@@ -255,7 +423,7 @@ namespace dae
             // WORLD
             const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
             // VIEW - PROJECTION
-            const Vector4 v4_proj = (m_Camera.invViewMatrix * m_Camera.projection).TransformPoint(v4);
+            const Vector4 v4_proj = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(v4);
             // NDC
             vertex_out.position.x = v4_proj.x / v4_proj.w;
             vertex_out.position.y = v4_proj.y / v4_proj.w;

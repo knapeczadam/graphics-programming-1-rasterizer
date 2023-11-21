@@ -37,9 +37,9 @@ namespace dae
         void RotateCamera(float deltaTime);
 
     public:
-        Matrix invViewMatrix {};
-        Matrix viewMatrix    {};
-        Matrix projection    {};
+        Matrix invViewMatrix    {};
+        Matrix viewMatrix       {};
+        Matrix projectionMatrix {};
 
     private:
         Vector3 origin      {};

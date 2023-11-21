@@ -42,6 +42,10 @@ namespace dae
         inline Camera& GetCamera() { return m_Camera; }
 
     private:
+        void InitCamera();
+        void InitializeOutVertices();
+        void InitializeTextures();
+        
         void VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
         void VertexTransformationFromWorldToScreenV2(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
@@ -76,6 +80,13 @@ namespace dae
 
         // General texture
         Texture* m_pTexture           {nullptr};
+
+        // Vehicle
+        Texture* m_pTextureDiffuse    {nullptr};
+        Texture* m_pTextureGlossiness {nullptr};
+        Texture* m_pTextureNormal     {nullptr};
+        Texture* m_pTextureSpecular   {nullptr};
+        
 
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer{};

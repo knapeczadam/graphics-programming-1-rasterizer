@@ -156,7 +156,7 @@ namespace dae
     {
         //ProjectionMatrix => Matrix::CreatePerspectiveFovLH(...) [not implemented yet]
         //DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
-        projection = Matrix::CreatePerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
+        projectionMatrix = Matrix::CreatePerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
     }
 
 }
