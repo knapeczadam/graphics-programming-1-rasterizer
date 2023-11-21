@@ -54,25 +54,34 @@ namespace dae
         int GetBufferIndex(int x, int y) const;
 
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
-        void Render_W1_TODO_0();
+        
+        // --- Week 1 ---
+        void Render_W1_TODO_0() const;
         void Render_W1_TODO_1() const;
         void Render_W1_TODO_2() const;
         void Render_W1_TODO_3() const;
         void Render_W1_TODO_4();
         void Render_W1_TODO_5();
 
+        // --- Week 2 ---
         void Render_W2_TODO_1();
         void Render_W2_TODO_2();
         void Render_W2_TODO_3();
         void Render_W2_TODO_4();
         void Render_W2_TODO_5();
 
+        // --- Week 3 ---
         void Render_W3_TODO_0();
         void Render_W3_TODO_1();
         void Render_W3_TODO_2();
         void Render_W3_TODO_3();
         void Render_W3_TODO_4();
         void Render_W3_TODO_5();
+
+        // --- Week 4 ---
+        void Render_W4_TODO_1();
+        void Render_W4_TODO_2();
+        void Render_W4_TODO_3();
 
     private:
         SDL_Window* m_pWindow{};

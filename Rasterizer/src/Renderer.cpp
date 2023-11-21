@@ -213,6 +213,15 @@ namespace dae
 
         // --- WEEK 4 ---
 #elif W4
+#if TODO_0
+        Render_W4_TODO_0();
+#elif TODO_1
+        Render_W4_TODO_1();
+#elif TODO_2
+        Render_W4_TODO_2();
+#elif TODO_3
+        Render_W4_TODO_3();
+#endif
 #endif
 
         //@END
@@ -513,7 +522,8 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.b * 255));
     }
 
-    void Renderer::Render_W1_TODO_0()
+#pragma region Week 1
+    void Renderer::Render_W1_TODO_0() const
     {
         //RENDER LOGIC
         for (int px{}; px < m_Width; ++px)
@@ -731,7 +741,9 @@ namespace dae
             }
         }
     }
+#pragma endregion
 
+#pragma region Week 2
     void Renderer::Render_W2_TODO_1()
     {
         std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
@@ -1160,7 +1172,9 @@ namespace dae
             }
         }
     }
-    
+#pragma endregion
+
+#pragma region Week 3
     void Renderer::Render_W3_TODO_0()
     {
         std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
@@ -1720,9 +1734,21 @@ namespace dae
             }
         }
     }
+#pragma endregion
+
+#pragma region Week 4
+    void Renderer::Render_W4_TODO_1()
     {
     }
 
+    void Renderer::Render_W4_TODO_2()
+    {
+    }
+
+    void Renderer::Render_W4_TODO_3()
+    {
+    }
+#pragma endregion
 
     bool Renderer::SaveBufferToImage() const
     {
