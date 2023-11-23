@@ -47,8 +47,9 @@ namespace dae
         void InitializeOutVertices();
         void InitializeTextures();
         
-        void VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
+        void VertexTransformationFromWorldToScreenV1(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
         void VertexTransformationFromWorldToScreenV2(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void VertexTransformationFromWorldToScreenV3(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 
         int GetBufferIndex(int x, int y) const;
@@ -77,6 +78,7 @@ namespace dae
         void Render_W3_TODO_3();
         void Render_W3_TODO_4();
         void Render_W3_TODO_5();
+        void Render_W3_TODO_6();
 
         // --- Week 4 ---
         void Render_W4_TODO_1();

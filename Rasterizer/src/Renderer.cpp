@@ -153,6 +153,20 @@ namespace dae
         {
             meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
         }
+#elif TODO_5
+        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * pTimer->GetTotal()};
+        const auto rotMatrix{Matrix::CreateRotationY(yaw)};
+        for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
+        {
+            meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
+        }
+#elif TODO_6
+        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * pTimer->GetTotal()};
+        const auto rotMatrix{Matrix::CreateRotationY(yaw)};
+        for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
+        {
+            meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
+        }
 #endif
 #endif
     }
@@ -207,6 +221,8 @@ namespace dae
         Render_W3_TODO_4();
 #elif TODO_5
         Render_W3_TODO_5();
+#elif TODO_6
+        Render_W3_TODO_6();
 #endif
 
         // --- WEEK 4 ---
@@ -288,6 +304,8 @@ namespace dae
         m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f});
 #elif TODO_5
         m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f});
+#elif TODO_6
+        m_Camera.Initialize(60.f, {0.0f, 5.0f, -30.0f});
 #endif
 
         // --- WEEK 4 ---
@@ -359,6 +377,10 @@ namespace dae
         Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
+#elif TODO_6
+        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        meshes_world_list_transformed = meshes_world_list;
+        vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #endif
 
         // --- WEEK 4 ---
@@ -425,6 +447,8 @@ namespace dae
         m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
 #elif TODO_5
         m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
+#elif TODO_6
+        m_pTexture = Texture::LoadFromFile("Resources/tuktuk.png");
 #endif
 
         // --- WEEK 4 ---
@@ -439,7 +463,12 @@ namespace dae
 #pragma endregion
 
 #pragma region Transformations
-    void Renderer::VertexTransformationFromWorldToScreen(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
+    /**
+     * \brief Without Projection Matrix
+     * \param vertices_in 
+     * \param vertices_out 
+     */
+    void Renderer::VertexTransformationFromWorldToScreenV1(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
         {
@@ -467,8 +496,13 @@ namespace dae
         }
     }
 
+    /**
+     * \brief With Projection Matrix
+     * \param vertices_in 
+     * \param vertices_out 
+     */
     void Renderer::VertexTransformationFromWorldToScreenV2(const std::vector<Vertex>& vertices_in,
-        std::vector<Vertex_Out>& vertices_out) const
+                                                           std::vector<Vertex_Out>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
         {
@@ -489,6 +523,39 @@ namespace dae
             // DEPTH
             assert(v4_proj.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");
             vertex_out.position.w = v4_proj.w;
+            // UV
+            vertex_out.uv = vertex_in.uv;
+        }
+    }
+
+    /**
+     * \brief Optimized version
+     * \param vertices_in 
+     * \param vertices_out 
+     */
+    void Renderer::VertexTransformationFromWorldToScreenV3(const std::vector<Vertex>& vertices_in,
+                                                           std::vector<Vertex_Out>& vertices_out) const
+    {
+        for (size_t i{0}; i < vertices_in.size(); ++i)
+        {
+            const Vertex& vertex_in = vertices_in[i];
+            Vertex_Out& vertex_out = vertices_out[i];
+
+            // WORLD
+            const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
+            // VIEW - PROJECTION
+            const Vector4 v4_proj = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(v4);
+            // DEPTH
+            assert(v4_proj.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");
+            vertex_out.position.w = 1.0f / v4_proj.w;
+            // NDC
+            vertex_out.position.x = v4_proj.x * vertex_out.position.w;
+            vertex_out.position.y = v4_proj.y * vertex_out.position.w;
+            vertex_out.position.z = v4_proj.z * vertex_out.position.w;
+            vertex_out.position.z = 1.0f / vertex_out.position.z;
+            // SCREEN
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
             // UV
             vertex_out.uv = vertex_in.uv;
         }
@@ -593,7 +660,7 @@ namespace dae
      */
     void Renderer::Render_W1_TODO_2() const
     {
-        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_2, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_2, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
         const Vector2 v1{vertices_ss[1].position.GetXY()};
@@ -619,7 +686,7 @@ namespace dae
 
     void Renderer::Render_W1_TODO_3() const
     {
-        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_3, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_3, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
         const Vector2 v1{vertices_ss[1].position.GetXY()};
@@ -651,7 +718,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_4, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_4, vertices_ss);
 
         for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
         {
@@ -698,7 +765,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(triangle_vertices_world_todo_4, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_4, vertices_ss);
 
         for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
         {
@@ -759,7 +826,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
         
-        VertexTransformationFromWorldToScreen(meshes_world_list[0].vertices, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(meshes_world_list[0].vertices, vertices_ss);
 
         for (size_t idx{0}; idx < meshes_world_list[0].indices.size(); idx += 3)
         {
@@ -826,7 +893,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -911,7 +978,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -999,7 +1066,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -1093,7 +1160,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(meshes_world_strip[0].vertices, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -1190,7 +1257,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreen(meshes_world_list[0].vertices, vertices_ss);
+        VertexTransformationFromWorldToScreenV1(meshes_world_list[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_list[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -1724,6 +1791,107 @@ namespace dae
                             const Vector2 weightedV0UV{v0.uv / pos0.w * weights[0]};
                             const Vector2 weightedV1UV{v1.uv / pos1.w * weights[1]};
                             const Vector2 weightedV2UV{v2.uv / pos2.w * weights[2]};
+                            const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+                            
+                            // Color
+                            if (m_VisualizeDepthBuffer)
+                            {
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
+                            }
+                            else
+                            {
+                                finalColor = m_pTexture->Sample(uv);
+                            }
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Renderer::Render_W3_TODO_6()
+    {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreenV3(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+
+        const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
+        for (size_t idx{0}; idx < indices.size(); idx+=3)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex_Out& v0{vertices_ss_out[idx0]};
+            Vertex_Out& v1{vertices_ss_out[idx1]};
+            Vertex_Out& v2{vertices_ss_out[idx2]};
+
+            // Triangle's vertices' positions
+            const Vector4& pos0{v0.position};
+            const Vector4& pos1{v1.position};
+            const Vector4& pos2{v2.position};
+
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            const int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            const int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            const int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            const int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
+
+            // Clamp bounding box
+            if (minX < 0)         continue;
+            if (maxX >= m_Width)  continue;
+            if (minY < 0)         continue;
+            if (maxY >= m_Height) continue;
+
+            ColorRGB finalColor{colors::Black};
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    if (m_VisualizeBoundingBox)
+                    {
+                        finalColor = colors::White;
+                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        continue;
+                    }
+                    
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    // Point - Triangle test
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate Z-Buffer - optimized
+                        const float weightedZBufferV0{pos0.z * weights[0]};
+                        const float weightedZBufferV1{pos1.z * weights[1]};
+                        const float weightedZBufferV2{pos2.z * weights[2]};
+                        const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
+
+                        // Frustum culling
+                        if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
+
+                        // Z-test
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
+
+                            // Interpolate View Space depth - optimized
+                            const float weightedViewSpaceDepthV0{pos0.w * weights[0]};
+                            const float weightedViewSpaceDepthV1{pos1.w * weights[1]};
+                            const float weightedViewSpaceDepthV2{pos2.w * weights[2]};
+                            const float interpolatedViewSpaceDepth{1.0f / (weightedViewSpaceDepthV0 + weightedViewSpaceDepthV1 + weightedViewSpaceDepthV2)};
+
+                            // Interpolate UV - optimized
+                            const Vector2 weightedV0UV{v0.uv * pos0.w * weights[0]};
+                            const Vector2 weightedV1UV{v1.uv * pos1.w * weights[1]};
+                            const Vector2 weightedV2UV{v2.uv * pos2.w * weights[2]};
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
                             
                             // Color
