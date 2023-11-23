@@ -147,21 +147,27 @@ namespace dae
         // --- WEEK 3 ---
 #if W3
 #if TODO_4
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * pTimer->GetTotal()};
+        if (not m_Rotate) return;
+        m_AccTime += pTimer->GetElapsed();
+        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
             meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
         }
 #elif TODO_5
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * pTimer->GetTotal()};
+        if (not m_Rotate) return;
+        m_AccTime += pTimer->GetElapsed();
+        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
             meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
         }
 #elif TODO_6
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * pTimer->GetTotal()};
+        if (not m_Rotate) return;
+        m_AccTime += pTimer->GetElapsed();
+        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -245,14 +251,24 @@ namespace dae
         SDL_UpdateWindowSurface(m_pWindow);
     }
 
-    void Renderer::ToggleDepthVisualization()
+    void Renderer::ToggleDepthBufferVisibility()
     {
         m_VisualizeDepthBuffer = not m_VisualizeDepthBuffer;
     }
 
-    void Renderer::ToggleBoundingBoxVisualization()
+    void Renderer::ToggleBoundingBoxVisibility()
     {
         m_VisualizeBoundingBox = not m_VisualizeBoundingBox;
+    }
+
+    void Renderer::ToggleNormalVisibility()
+    {
+        m_VisualizeNormals = not m_VisualizeNormals;
+    }
+
+    void Renderer::ToggleRotation()
+    {
+        m_Rotate = not m_Rotate;
     }
 
 #pragma region Initialization

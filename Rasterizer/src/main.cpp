@@ -68,15 +68,19 @@ int main(int argc, char* args[])
                 if (e.key.keysym.scancode == SDL_SCANCODE_X)
                     takeScreenshot = true;
                 if (e.key.keysym.scancode == SDL_SCANCODE_F3)
-                    pRenderer->ToggleBoundingBoxVisualization();
-                if (e.key.keysym.scancode == SDL_SCANCODE_F4)
-                    pRenderer->ToggleDepthVisualization();
+                    pRenderer->ToggleBoundingBoxVisibility();
                 if (e.key.keysym.scancode == SDL_SCANCODE_F6)
                     pTimer->StartBenchmark();
                 if (e.key.keysym.scancode == SDL_SCANCODE_E)
                     pRenderer->GetCamera().IncreaseFOV();
                 if (e.key.keysym.scancode == SDL_SCANCODE_Q)
                     pRenderer->GetCamera().DecreaseFOV();
+                if (e.key.keysym.scancode == SDL_SCANCODE_R)
+                    pRenderer->ToggleRotation();
+                if (e.key.keysym.scancode == SDL_SCANCODE_N)
+                    pRenderer->ToggleNormalVisibility();
+                if (e.key.keysym.scancode == SDL_SCANCODE_Z)
+                    pRenderer->ToggleDepthBufferVisibility();
                 break;
             case SDL_MOUSEWHEEL:
                 pRenderer->GetCamera().Scroll(e.wheel);

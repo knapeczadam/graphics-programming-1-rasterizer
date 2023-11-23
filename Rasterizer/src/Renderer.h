@@ -39,8 +39,10 @@ namespace dae
 
         bool SaveBufferToImage() const;
         inline Camera& GetCamera() { return m_Camera; }
-        void ToggleDepthVisualization();
-        void ToggleBoundingBoxVisualization();
+        void ToggleDepthBufferVisibility();
+        void ToggleBoundingBoxVisibility();
+        void ToggleNormalVisibility();
+        void ToggleRotation();
 
     private:
         void InitCamera();
@@ -106,10 +108,13 @@ namespace dae
         std::vector<float> m_DepthBuffer {};
         bool m_VisualizeDepthBuffer {false};
         bool m_VisualizeBoundingBox {false};
+        bool m_VisualizeNormals     {false};
+        bool m_Rotate               {false};
 
         Camera m_Camera        {};
         float  m_RotationAngle {5.0f};
         float  m_RotationSpeed {10.0f};
+        float m_AccTime        {0.0f};
 
         int m_Width{};
         int m_Height{};
