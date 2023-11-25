@@ -16,7 +16,7 @@ namespace dae
         Camera() = default;
         Camera(const Vector3& _origin, float _fovAngle);
         
-        void Initialize(float _fovAngle = 90.f, Vector3 _origin = {0.f, 0.f, 0.f});
+        void Initialize(float _fovAngle = 90.0f, Vector3 _origin = {0.0f, 0.0f, 0.0f}, float nearPlane = 1.0f, float farPlane = 1000.0f);
         void Update(Timer* pTimer);
 
         float GetFOV() const;

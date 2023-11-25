@@ -10,14 +10,15 @@ namespace dae
     {
     }
 
-    void Camera::Initialize(float _fovAngle, Vector3 _origin)
+    void Camera::Initialize(float _fovAngle, Vector3 _origin, float _nearPlane, float _farPlane)
     {
         fovAngle = _fovAngle;
         fov = CalculateFOV(fovAngle);
 
         origin = _origin;
+        nearPlane = _nearPlane;
+        farPlane = _farPlane;
     }
-
 
     void Camera::Update(Timer* pTimer)
     {
