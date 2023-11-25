@@ -83,6 +83,7 @@ namespace dae
         void Render_W3_TODO_6();
 
         // --- Week 4 ---
+        void Render_W4_TODO_0();
         void Render_W4_TODO_1();
         void Render_W4_TODO_2();
         void Render_W4_TODO_3();

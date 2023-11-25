@@ -327,6 +327,8 @@ namespace dae
         // --- WEEK 4 ---
 #elif W4
 #if TODO_0
+        // Camera [ Position {0.f, 5.f, 64.f}, FOV angle {45}, Near {.1f}, Far {100.f} ]
+        m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #elif TODO_1
 #elif TODO_2
 #elif TODO_3
@@ -402,6 +404,9 @@ namespace dae
         // --- WEEK 4 ---
 #elif W4
 #if TODO_0
+        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        meshes_world_list_transformed = meshes_world_list;
+        vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_1
 #elif TODO_2
 #elif TODO_3
@@ -470,6 +475,10 @@ namespace dae
         // --- WEEK 4 ---
 #elif W4
 #if TODO_0
+        m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
+        m_pTextureGlossiness = Texture::LoadFromFile("Resources/vehicle_gloss.png");
+        m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        m_pTextureSpecular = Texture::LoadFromFile("Resources/vehicle_specular.png");
 #elif TODO_1
 #elif TODO_2
 #elif TODO_3
@@ -1930,6 +1939,10 @@ namespace dae
 #pragma endregion
 
 #pragma region Week 4
+    void Renderer::Render_W4_TODO_0()
+    {
+    }
+    
     void Renderer::Render_W4_TODO_1()
     {
     }
