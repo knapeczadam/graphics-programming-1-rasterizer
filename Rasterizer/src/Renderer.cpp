@@ -514,9 +514,9 @@ namespace dae
             const Vertex& vertex_in = vertices_in[i];
             Vertex& vertex_out = vertices_out[i];
 
-            // WORLD
+            // MODEL/OBJECT
             const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
-            // VIEW
+            // WORLD -> VIEW
             const Vector4 v4_view = m_Camera.invViewMatrix.TransformPoint(v4);
             // PROJECTION
             vertex_out.position.x = v4_view.x / v4_view.z;
@@ -548,9 +548,9 @@ namespace dae
             const Vertex& vertex_in = vertices_in[i];
             Vertex_Out& vertex_out = vertices_out[i];
 
-            // WORLD
+            // MODEL/OBJECT
             const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
-            // VIEW - PROJECTION
+            // WORLD -> VIEW - PROJECTION
             const Vector4 v4_proj = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(v4);
             // NDC
             vertex_out.position.x = v4_proj.x / v4_proj.w;
@@ -580,9 +580,45 @@ namespace dae
             const Vertex& vertex_in = vertices_in[i];
             Vertex_Out& vertex_out = vertices_out[i];
 
-            // WORLD
+            // MODEL/OBJECT
             const Vector4 positionIn{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
-            // VIEW - PROJECTION
+            // WORLD -> VIEW - PROJECTION
+            const Vector4 projectedPos = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(positionIn);
+            // DEPTH
+            assert(projectedPos.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");
+            vertex_out.position.w = 1.0f / projectedPos.w;
+            // NDC
+            vertex_out.position.x = projectedPos.x * vertex_out.position.w;
+            vertex_out.position.y = projectedPos.y * vertex_out.position.w;
+            vertex_out.position.z = projectedPos.z * vertex_out.position.w;
+            vertex_out.position.z = 1.0f / vertex_out.position.z;
+            // SCREEN
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+            // UV
+            vertex_out.uv = vertex_in.uv;
+        }
+    }
+
+    /**
+     * \brief Optimized version with normal calculation
+     * \param vertices_in 
+     * \param vertices_out 
+     */
+    void Renderer::VertexTransformationFromWorldToScreenV4(const std::vector<Vertex>& vertices_in,
+                                                           std::vector<Vertex_Out>& vertices_out) const
+    {
+        for (size_t i{0}; i < vertices_in.size(); ++i)
+        {
+            const Vertex& vertex_in = vertices_in[i];
+            Vertex_Out& vertex_out = vertices_out[i];
+
+            // MODEL/OBJECT
+            const Vector4 positionIn{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
+            const Vector4 normalIn{vertex_in.normal.x, vertex_in.normal.y, vertex_in.normal.z, 0.0f};
+            // WORLD
+            
+            // WORLD -> VIEW -> PROJECTION
             const Vector4 projectedPos = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(positionIn);
             // DEPTH
             assert(projectedPos.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");

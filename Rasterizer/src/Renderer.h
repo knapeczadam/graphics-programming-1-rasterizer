@@ -52,6 +52,7 @@ namespace dae
         void VertexTransformationFromWorldToScreenV1(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
         void VertexTransformationFromWorldToScreenV2(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void VertexTransformationFromWorldToScreenV3(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void VertexTransformationFromWorldToScreenV4(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 
         int GetBufferIndex(int x, int y) const;
