@@ -581,16 +581,16 @@ namespace dae
             Vertex_Out& vertex_out = vertices_out[i];
 
             // WORLD
-            const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
+            const Vector4 positionIn{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
             // VIEW - PROJECTION
-            const Vector4 v4_proj = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(v4);
+            const Vector4 projectedPos = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(positionIn);
             // DEPTH
-            assert(v4_proj.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");
-            vertex_out.position.w = 1.0f / v4_proj.w;
+            assert(projectedPos.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");
+            vertex_out.position.w = 1.0f / projectedPos.w;
             // NDC
-            vertex_out.position.x = v4_proj.x * vertex_out.position.w;
-            vertex_out.position.y = v4_proj.y * vertex_out.position.w;
-            vertex_out.position.z = v4_proj.z * vertex_out.position.w;
+            vertex_out.position.x = projectedPos.x * vertex_out.position.w;
+            vertex_out.position.y = projectedPos.y * vertex_out.position.w;
+            vertex_out.position.z = projectedPos.z * vertex_out.position.w;
             vertex_out.position.z = 1.0f / vertex_out.position.z;
             // SCREEN
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
