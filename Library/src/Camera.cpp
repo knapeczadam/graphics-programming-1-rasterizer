@@ -136,18 +136,9 @@ namespace dae
     {
         //ONB => invViewMatrix
         //Inverse(ONB) => ViewMatrix
-        Matrix out;
-
-        right = Vector3{forward.z, 0.f, -forward.x}.Normalized();
-        up = Vector3::Cross(forward, right);
-
-        out[0] = Vector4{right, 0.f};
-        out[1] = Vector4{up, 0.f};
-        out[2] = Vector4{forward, 0.f};
-        out[3] = Vector4{origin, 1.f};
-
-        viewMatrix = out;
-        invViewMatrix = Matrix::Inverse(out);
+        
+        viewMatrix = Matrix::CreateLookAtLH(origin, forward, up, right);
+        invViewMatrix = Matrix::Inverse(viewMatrix);
 
         //ViewMatrix => Matrix::CreateLookAtLH(...) [not implemented yet]
         //DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatlh
