@@ -9,8 +9,8 @@ namespace dae
     #define W3 0
     #define W4 1
 
-    #define TODO_0 1 // Test
-    #define TODO_1 0
+    #define TODO_0 0 // Test
+    #define TODO_1 1
     #define TODO_2 0
     #define TODO_3 0
     #define TODO_4 0

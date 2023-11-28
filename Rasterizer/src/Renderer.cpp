@@ -626,8 +626,6 @@ namespace dae
 
             // MODEL/OBJECT
             const Vector4 positionIn{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
-            // WORLD NORMAL
-            const Vector3 worldNormal {m_Camera.viewMatrix.TransformVector(vertex_in.normal)};
             // WORLD -> VIEW -> PROJECTION
             const Vector4 projectedPos = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(positionIn);
             // DEPTH
@@ -643,8 +641,8 @@ namespace dae
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
             // UV
             vertex_out.uv = vertex_in.uv;
-            // NORMAL
-            vertex_out.normal = worldNormal;
+            // WORLD NORMAL
+            vertex_out.normal = vertex_in.normal;
         }
     }
 
@@ -678,7 +676,25 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.g * 255),
                                                               static_cast<uint8_t>(finalColor.b * 255));
     }
-    
+
+    void Renderer::PixelShading(const Vertex_Out& vertex, ColorRGB& finalColor) const
+    {
+        // Normalized light direction
+        const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
+
+        // Observed area
+        const float observedArea{Vector3::Dot(vertex.normal, -lighDirection)};
+
+        if (observedArea < 0) return;
+
+        // Lambert
+        constexpr float kd{7.0f};
+        finalColor = finalColor * kd / PI;
+
+        // Combined
+        finalColor = colors::White * observedArea;
+    }
+
     bool Renderer::SaveBufferToImage() const
     {
         return SDL_SaveBMP(m_pBackBuffer, "Rasterizer_ColorBuffer.bmp");
@@ -2184,6 +2200,12 @@ namespace dae
                             const Vector2 weightedV1UV{v1.uv * pos1.w * weights[1]};
                             const Vector2 weightedV2UV{v2.uv * pos2.w * weights[2]};
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+
+                            // Interpolate Normal + Normalization
+                            const Vector3 weightedV0Normal{v0.normal * weights[0]};
+                            const Vector3 weightedV1Normal{v1.normal * weights[1]};
+                            const Vector3 weightedV2Normal{v2.normal * weights[2]};
+                            const Vector3 normal{((weightedV0Normal + weightedV1Normal + weightedV2Normal) * interpolatedViewSpaceDepth).Normalized()};
                             
                             // Color
                             if (m_VisualizeDepthBuffer)
@@ -2193,7 +2215,9 @@ namespace dae
                             }
                             else
                             {
-                                finalColor = m_pTextureDiffuse->Sample(uv);
+                                Vertex_Out pixelVertex;
+                                pixelVertex.normal = normal;
+                                PixelShading(pixelVertex, finalColor);
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
