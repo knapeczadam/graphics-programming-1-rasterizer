@@ -197,6 +197,17 @@ namespace dae
             meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
             meshes_world_list_transformed[0].vertices[idx].normal = rotMatrix.TransformVector(meshes_world_list[0].vertices[idx].normal);
         }
+#elif TODO_2
+        if (not m_Rotate) return;
+        m_AccTime += pTimer->GetElapsed();
+        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const auto rotMatrix{Matrix::CreateRotationY(yaw)};
+        for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
+        {
+            meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
+            meshes_world_list_transformed[0].vertices[idx].normal = rotMatrix.TransformVector(meshes_world_list[0].vertices[idx].normal);
+            meshes_world_list_transformed[0].vertices[idx].tangent = rotMatrix.TransformVector(meshes_world_list[0].vertices[idx].tangent);
+        }
 #endif
 #endif
     }
@@ -356,6 +367,7 @@ namespace dae
 #elif TODO_1
         m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #elif TODO_2
+        m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #elif TODO_3
 #endif
 #endif
@@ -437,6 +449,9 @@ namespace dae
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_2
+        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        meshes_world_list_transformed = meshes_world_list;
+        vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_3
 #endif
 #endif
@@ -507,6 +522,8 @@ namespace dae
 #elif TODO_1
         m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
 #elif TODO_2
+        m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
+        m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
 #elif TODO_3
 #endif
 #endif
@@ -644,6 +661,8 @@ namespace dae
             vertex_out.uv = vertex_in.uv;
             // WORLD NORMAL
             vertex_out.normal = vertex_in.normal;
+            // WORLD TANGENT
+            vertex_out.tangent = vertex_in.tangent;
         }
     }
 
@@ -678,7 +697,7 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.b * 255));
     }
 
-    void Renderer::PixelShading(const Vertex_Out& vertex, ColorRGB& finalColor) const
+    void Renderer::PixelShading(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor) const
     {
         // Normalized light direction
         const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
@@ -690,10 +709,10 @@ namespace dae
 
         // Lambert
         constexpr float kd{7.0f}; // Light intensity
-        finalColor = finalColor * kd / PI;
+        finalColor = diffuseColor * kd / PI;
 
         // Combined
-        finalColor = colors::White * observedArea;
+        finalColor *= observedArea;
     }
 
     bool Renderer::SaveBufferToImage() const
@@ -2216,10 +2235,15 @@ namespace dae
                             }
                             else
                             {
+                                // Diffuse
+                                const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
+
+                                // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normal;
+                                
+                                // Final shading
                                 PixelShading(pixelVertex, finalColor);
-                                finalColor *= m_pTextureDiffuse->Sample(uv);
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
@@ -2231,6 +2255,140 @@ namespace dae
 
     void Renderer::Render_W4_TODO_2()
     {
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+        VertexTransformationFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+
+        const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
+        for (size_t idx{0}; idx < indices.size(); idx+=3)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            Vertex_Out& v0{vertices_ss_out[idx0]};
+            Vertex_Out& v1{vertices_ss_out[idx1]};
+            Vertex_Out& v2{vertices_ss_out[idx2]};
+
+            // Triangle's vertices' positions
+            const Vector4& pos0{v0.position};
+            const Vector4& pos1{v1.position};
+            const Vector4& pos2{v2.position};
+
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            const int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            const int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            const int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            const int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
+
+            // Clamp bounding box
+            if (minX < 0)         continue;
+            if (maxX >= m_Width)  continue;
+            if (minY < 0)         continue;
+            if (maxY >= m_Height) continue;
+
+            ColorRGB finalColor{colors::Black};
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    if (m_VisualizeBoundingBox)
+                    {
+                        finalColor = colors::White;
+                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        continue;
+                    }
+                    
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    // Point - Triangle test
+                    if (IsPointInTriangle(pixel, pos0.GetXY(), pos1.GetXY(), pos2.GetXY(), weights))
+                    {
+                        // Interpolate Z-Buffer - optimized
+                        const float weightedZBufferV0{pos0.z * weights[0]};
+                        const float weightedZBufferV1{pos1.z * weights[1]};
+                        const float weightedZBufferV2{pos2.z * weights[2]};
+                        const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
+
+                        // Frustum culling
+                        if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
+
+                        // Z-test
+                        const int bufferIdx {GetBufferIndex(px, py)};
+                        if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
+
+                            // Interpolate View Space depth - optimized
+                            const float weightedViewSpaceDepthV0{pos0.w * weights[0]};
+                            const float weightedViewSpaceDepthV1{pos1.w * weights[1]};
+                            const float weightedViewSpaceDepthV2{pos2.w * weights[2]};
+                            const float interpolatedViewSpaceDepth{1.0f / (weightedViewSpaceDepthV0 + weightedViewSpaceDepthV1 + weightedViewSpaceDepthV2)};
+
+                            // Interpolate UV - optimized
+                            const Vector2 weightedV0UV{v0.uv * pos0.w * weights[0]};
+                            const Vector2 weightedV1UV{v1.uv * pos1.w * weights[1]};
+                            const Vector2 weightedV2UV{v2.uv * pos2.w * weights[2]};
+                            const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+
+                            // Interpolate Normal + Normalization
+                            const Vector3 weightedV0Normal{v0.normal * weights[0]};
+                            const Vector3 weightedV1Normal{v1.normal * weights[1]};
+                            const Vector3 weightedV2Normal{v2.normal * weights[2]};
+                            const Vector3 normal{((weightedV0Normal + weightedV1Normal + weightedV2Normal) * interpolatedViewSpaceDepth).Normalized()};
+
+                            // Interpolate Tangent + Normalization
+                            const Vector3 weightedV0Tangent{v0.tangent * weights[0]};
+                            const Vector3 weightedV1Tangent{v1.tangent * weights[1]};
+                            const Vector3 weightedV2Tangent{v2.tangent * weights[2]};
+                            const Vector3 tangent{((weightedV0Tangent + weightedV1Tangent + weightedV2Tangent) * interpolatedViewSpaceDepth).Normalized()};
+
+                            // Binormal
+                            const Vector3 binormal{Vector3::Cross(normal, tangent)};
+
+                            // Tangent-space transformation matrix
+                            const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
+                            
+                            // Color
+                            if (m_VisualizeDepthBuffer)
+                            {
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
+                            }
+                            else
+                            {
+                                // Normal map
+                                const ColorRGB normalMapColor{m_pTextureNormal->Sample(uv)};
+                                Vector3 normalMap{normalMapColor.r, normalMapColor.g, normalMapColor.b};
+                                // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
+                                normalMap = tangentSpaceAxis.TransformVector(normalMap).Normalized();
+                                // Remap from [0, 1] to [-1, 1]
+                                normalMap.x *= 2.0f - 1.0f;
+                                normalMap.y *= 2.0f - 1.0f;
+                                normalMap.z *= 2.0f - 1.0f;
+
+                                // Diffuse
+                                const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
+
+                                // Pixel vertex
+                                Vertex_Out pixelVertex;
+                                pixelVertex.normal = normalMap;
+                                
+                                // Final shading
+                                PixelShading(pixelVertex, finalColor, diffuseColor);
+                                
+                            }
+                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void Renderer::Render_W4_TODO_3()
