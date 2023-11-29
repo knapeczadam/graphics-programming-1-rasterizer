@@ -2225,7 +2225,7 @@ namespace dae
                             const Vector3 weightedV0Normal{v0.normal * weights[0]};
                             const Vector3 weightedV1Normal{v1.normal * weights[1]};
                             const Vector3 weightedV2Normal{v2.normal * weights[2]};
-                            const Vector3 normal{((weightedV0Normal + weightedV1Normal + weightedV2Normal) * interpolatedViewSpaceDepth).Normalized()};
+                            const Vector3 normal{(weightedV0Normal + weightedV1Normal + weightedV2Normal).Normalized()};
                             
                             // Color
                             if (m_VisualizeDepthBuffer)
@@ -2340,13 +2340,13 @@ namespace dae
                             const Vector3 weightedV0Normal{v0.normal * weights[0]};
                             const Vector3 weightedV1Normal{v1.normal * weights[1]};
                             const Vector3 weightedV2Normal{v2.normal * weights[2]};
-                            const Vector3 normal{((weightedV0Normal + weightedV1Normal + weightedV2Normal) * interpolatedViewSpaceDepth).Normalized()};
+                            const Vector3 normal{(weightedV0Normal + weightedV1Normal + weightedV2Normal).Normalized()};
 
                             // Interpolate Tangent + Normalization
                             const Vector3 weightedV0Tangent{v0.tangent * weights[0]};
                             const Vector3 weightedV1Tangent{v1.tangent * weights[1]};
                             const Vector3 weightedV2Tangent{v2.tangent * weights[2]};
-                            const Vector3 tangent{((weightedV0Tangent + weightedV1Tangent + weightedV2Tangent) * interpolatedViewSpaceDepth).Normalized()};
+                            const Vector3 tangent{(weightedV0Tangent + weightedV1Tangent + weightedV2Tangent).Normalized()};
 
                             // Binormal
                             const Vector3 binormal{Vector3::Cross(normal, tangent)};
