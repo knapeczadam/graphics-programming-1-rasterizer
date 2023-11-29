@@ -697,7 +697,7 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.b * 255));
     }
 
-    void Renderer::PixelShading(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor) const
+    void Renderer::PixelShadingV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor) const
     {
         // Normalized light direction
         const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
@@ -2243,7 +2243,7 @@ namespace dae
                                 pixelVertex.normal = normal;
                                 
                                 // Final shading
-                                PixelShading(pixelVertex, finalColor);
+                                PixelShadingV1(pixelVertex, finalColor);
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
@@ -2380,7 +2380,7 @@ namespace dae
                                 pixelVertex.normal = normalMap;
                                 
                                 // Final shading
-                                PixelShading(pixelVertex, finalColor, diffuseColor);
+                                PixelShadingV1(pixelVertex, finalColor);
                                 
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
