@@ -58,6 +58,7 @@ namespace dae
         int GetBufferIndex(int x, int y) const;
 
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
+        void PixelShading(const Vertex_Out& vertex, ColorRGB& finalColor) const;
         
         // --- Week 1 ---
         void Render_W1_TODO_0() const;

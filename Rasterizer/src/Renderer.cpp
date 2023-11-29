@@ -195,6 +195,7 @@ namespace dae
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
             meshes_world_list_transformed[0].vertices[idx].position = rotMatrix.TransformPoint(meshes_world_list[0].vertices[idx].position);
+            meshes_world_list_transformed[0].vertices[idx].normal = rotMatrix.TransformVector(meshes_world_list[0].vertices[idx].normal);
         }
 #endif
 #endif
@@ -688,7 +689,7 @@ namespace dae
         if (observedArea < 0) return;
 
         // Lambert
-        constexpr float kd{7.0f};
+        constexpr float kd{7.0f}; // Light intensity
         finalColor = finalColor * kd / PI;
 
         // Combined
@@ -2218,6 +2219,7 @@ namespace dae
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normal;
                                 PixelShading(pixelVertex, finalColor);
+                                finalColor *= m_pTextureDiffuse->Sample(uv);
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
