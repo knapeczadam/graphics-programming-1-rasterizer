@@ -12,8 +12,8 @@ namespace dae
     #define TODO_0 0
     #define TODO_1 0
     #define TODO_2 0
-    #define TODO_3 1
-    #define TODO_4 0
+    #define TODO_3 0
+    #define TODO_4 1
     #define TODO_5 0    
     #define TODO_6 0    
 }
@@ -53,4 +53,5 @@ namespace dae
  * TODO_1: Vehicle - Observed area calculation based on .obj file's normals
  * TODO_2: Vehicle - Observed area calculation based on normal map
  * TODO_3: Vehicle - Diffuse with sampled normals + observed area
+ * TODO_4: Vehicle - Specular with sampled normals + observed area
  */
