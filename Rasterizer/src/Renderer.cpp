@@ -2524,7 +2524,7 @@ namespace dae
                                 normalMapColor = 2.0f * normalMapColor - colors::White;
                                 
                                 // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
-                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b}).Normalized()};
+                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
 
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
@@ -2661,7 +2661,7 @@ namespace dae
                                 normalMapColor = 2.0f * normalMapColor - colors::White;
                                 
                                 // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
-                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b}).Normalized()};
+                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
 
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
@@ -2794,7 +2794,7 @@ namespace dae
                                 // Remap from [0, 1] to [-1, 1]
                                 normalMapColor = 2.0f * normalMapColor - colors::White;
                                 // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
-                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b}).Normalized()};
+                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
 
                                 // Glossiness
                                 const float glossiness{m_pTextureGlossiness->Sample(uv).r};
@@ -2936,7 +2936,7 @@ namespace dae
                                 // Remap from [0, 1] to [-1, 1]
                                 normalMapColor = 2.0f * normalMapColor - colors::White;
                                 // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
-                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b}).Normalized()};
+                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
 
                                 // Diffuse
                                 const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
@@ -3080,7 +3080,7 @@ namespace dae
                                 // Remap from [0, 1] to [-1, 1]
                                 normalMapColor = 2.0f * normalMapColor - colors::White;
                                 // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
-                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b}).Normalized()};
+                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
 
                                 // Diffuse
                                 const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
