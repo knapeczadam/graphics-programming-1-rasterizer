@@ -14,8 +14,8 @@ namespace dae
     #define TODO_2 0
     #define TODO_3 0
     #define TODO_4 0
-    #define TODO_5 1    
-    #define TODO_6 0    
+    #define TODO_5 0
+    #define TODO_6 1 
 }
 
 // --- WEEK 1 ---

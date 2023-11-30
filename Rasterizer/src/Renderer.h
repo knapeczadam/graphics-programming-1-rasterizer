@@ -61,6 +61,7 @@ namespace dae
         void PixelShadingV0(const Vertex_Out& vertex, ColorRGB& finalColor) const;
         void PixelShadingV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor = colors::White) const;
         void PixelShadingV2(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor = colors::White, const ColorRGB& specularColor = colors::White, float glossiness = 0.0f) const;
+        void PixelShadingV3(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor = colors::White, const ColorRGB& specularColor = colors::White, float glossiness = 0.0f) const;
         
         // --- Week 1 ---
         void Render_W1_TODO_0() const;
@@ -93,6 +94,7 @@ namespace dae
         void Render_W4_TODO_3();
         void Render_W4_TODO_4();
         void Render_W4_TODO_5();
+        void Render_W4_TODO_6();
 
     private:
         SDL_Window* m_pWindow{};
