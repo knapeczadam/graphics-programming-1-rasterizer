@@ -2805,7 +2805,9 @@ namespace dae
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
-                                pixelVertex.viewDirection = v0.viewDirection;
+                                
+                                // Average view direction
+                                pixelVertex.viewDirection = (v0.viewDirection + v1.viewDirection + v2.viewDirection) / 3.0f;    
                                 
                                 // Final shading
                                 PixelShadingV2(pixelVertex, finalColor, colors::Black, specularColor, glossiness);
@@ -2948,7 +2950,9 @@ namespace dae
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
-                                pixelVertex.viewDirection = v0.viewDirection;
+                                
+                                // Average view direction
+                                pixelVertex.viewDirection = (v0.viewDirection + v1.viewDirection + v2.viewDirection) / 3.0f;    
                                 
                                 // Final shading
                                 PixelShadingV2(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
@@ -3090,7 +3094,9 @@ namespace dae
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
-                                pixelVertex.viewDirection = v0.viewDirection;
+                                
+                                // Average view direction
+                                pixelVertex.viewDirection = (v0.viewDirection + v1.viewDirection + v2.viewDirection) / 3.0f;    
                                 
                                 // Final shading
                                 PixelShadingV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
