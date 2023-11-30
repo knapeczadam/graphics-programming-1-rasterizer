@@ -754,7 +754,7 @@ namespace dae
             // WORLD TANGENT
             vertex_out.tangent = vertex_in.tangent;
             // VIEW-DIRECTION
-            vertex_out.viewDirection = m_Camera.GetOrigin() - vertex_out.position;
+            vertex_out.viewDirection = (vertex_in.position - m_Camera.GetOrigin()).Normalized();
         }
     }
 
@@ -2780,12 +2780,6 @@ namespace dae
 
                             // Tangent-space transformation matrix
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
-
-                            // Interpolate View-direction
-                            const Vector3 weightedV0ViewDirection{v0.viewDirection * weights[0]};
-                            const Vector3 weightedV1ViewDirection{v1.viewDirection * weights[1]};
-                            const Vector3 weightedV2ViewDirection{v2.viewDirection * weights[2]};
-                            const Vector3 viewDirection{(weightedV0ViewDirection + weightedV1ViewDirection + weightedV2ViewDirection).Normalized()};
                             
                             // Color
                             if (m_VisualizeDepthBuffer)
@@ -2811,7 +2805,7 @@ namespace dae
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
-                                pixelVertex.viewDirection = viewDirection;
+                                pixelVertex.viewDirection = v0.viewDirection;
                                 
                                 // Final shading
                                 PixelShadingV2(pixelVertex, finalColor, colors::Black, specularColor, glossiness);
@@ -2926,12 +2920,6 @@ namespace dae
 
                             // Tangent-space transformation matrix
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
-
-                            // Interpolate View-direction
-                            const Vector3 weightedV0ViewDirection{v0.viewDirection * weights[0]};
-                            const Vector3 weightedV1ViewDirection{v1.viewDirection * weights[1]};
-                            const Vector3 weightedV2ViewDirection{v2.viewDirection * weights[2]};
-                            const Vector3 viewDirection{(weightedV0ViewDirection + weightedV1ViewDirection + weightedV2ViewDirection).Normalized()};
                             
                             // Color
                             if (m_VisualizeDepthBuffer)
@@ -2960,7 +2948,7 @@ namespace dae
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
-                                pixelVertex.viewDirection = viewDirection;
+                                pixelVertex.viewDirection = v0.viewDirection;
                                 
                                 // Final shading
                                 PixelShadingV2(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
@@ -3074,12 +3062,6 @@ namespace dae
 
                             // Tangent-space transformation matrix
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
-
-                            // Interpolate View-direction
-                            const Vector3 weightedV0ViewDirection{v0.viewDirection * weights[0]};
-                            const Vector3 weightedV1ViewDirection{v1.viewDirection * weights[1]};
-                            const Vector3 weightedV2ViewDirection{v2.viewDirection * weights[2]};
-                            const Vector3 viewDirection{(weightedV0ViewDirection + weightedV1ViewDirection + weightedV2ViewDirection).Normalized()};
                             
                             // Color
                             if (m_VisualizeDepthBuffer)
@@ -3108,7 +3090,7 @@ namespace dae
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
-                                pixelVertex.viewDirection = viewDirection;
+                                pixelVertex.viewDirection = v0.viewDirection;
                                 
                                 // Final shading
                                 PixelShadingV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
