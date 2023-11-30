@@ -307,7 +307,7 @@ namespace dae
     }
 
 #pragma region Initialization
-    void Renderer::InitCamera()
+    void Renderer::InitializeCamera()
     {
         const float aspectRatio{static_cast<float>(m_Width) / static_cast<float>(m_Height)};
         m_Camera.SetAspectRatio(aspectRatio);
@@ -373,7 +373,7 @@ namespace dae
 #endif
     }
 
-    void Renderer::InitializeOutVertices()
+    void Renderer::InitializeOutputVertices()
     {
         // --- OBJECTS ---
         // Tuktuk
@@ -520,9 +520,7 @@ namespace dae
 #if TODO_0
         m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
 #elif TODO_1
-        m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
 #elif TODO_2
-        m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
         m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
 #elif TODO_3
 #endif
@@ -2373,24 +2371,19 @@ namespace dae
                             else
                             {
                                 // Normal map
-                                const ColorRGB normalMapColor{m_pTextureNormal->Sample(uv)};
-                                Vector3 normalMap{normalMapColor.r, normalMapColor.g, normalMapColor.b};
-                                // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
-                                normalMap = tangentSpaceAxis.TransformVector(normalMap).Normalized();
+                                ColorRGB normalMapColor{m_pTextureNormal->Sample(uv)};
                                 // Remap from [0, 1] to [-1, 1]
-                                normalMap.x *= 2.0f - 1.0f;
-                                normalMap.y *= 2.0f - 1.0f;
-                                normalMap.z *= 2.0f - 1.0f;
-
-                                // Diffuse
-                                const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
+                                normalMapColor = 2.0f * normalMapColor - colors::White;
+                                
+                                // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
+                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b}).Normalized()};
 
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
                                 
                                 // Final shading
-                                PixelShadingV1(pixelVertex, finalColor);
+                                PixelShadingV0(pixelVertex, finalColor);
                                 
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
