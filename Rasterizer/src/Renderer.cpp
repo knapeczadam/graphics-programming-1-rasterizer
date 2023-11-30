@@ -2334,11 +2334,12 @@ namespace dae
             if (minY < 0)         continue;
             if (maxY >= m_Height) continue;
 
-            ColorRGB finalColor{colors::Black};
             for (int px{minX}; px <= maxX; ++px)
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
+                    ColorRGB finalColor{colors::Black};
+                    
                     if (m_VisualizeBoundingBox)
                     {
                         finalColor = colors::White;
@@ -2446,11 +2447,12 @@ namespace dae
             if (minY < 0)         continue;
             if (maxY >= m_Height) continue;
 
-            ColorRGB finalColor{colors::Black};
             for (int px{minX}; px <= maxX; ++px)
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
+                    ColorRGB finalColor{colors::Black};
+                    
                     if (m_VisualizeBoundingBox)
                     {
                         finalColor = colors::White;
@@ -2579,11 +2581,12 @@ namespace dae
             if (minY < 0)         continue;
             if (maxY >= m_Height) continue;
 
-            ColorRGB finalColor{colors::Black};
             for (int px{minX}; px <= maxX; ++px)
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
+                    ColorRGB finalColor{colors::Black};
+                    
                     if (m_VisualizeBoundingBox)
                     {
                         finalColor = colors::White;
@@ -2715,11 +2718,12 @@ namespace dae
             if (minY < 0)         continue;
             if (maxY >= m_Height) continue;
 
-            ColorRGB finalColor{colors::Black};
             for (int px{minX}; px <= maxX; ++px)
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
+                    ColorRGB finalColor{colors::Black};
+                    
                     if (m_VisualizeBoundingBox)
                     {
                         finalColor = colors::White;
@@ -2860,11 +2864,12 @@ namespace dae
             if (minY < 0)         continue;
             if (maxY >= m_Height) continue;
 
-            ColorRGB finalColor{colors::Black};
             for (int px{minX}; px <= maxX; ++px)
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
+                    ColorRGB finalColor{colors::Black};
+                    
                     if (m_VisualizeBoundingBox)
                     {
                         finalColor = colors::White;
@@ -2959,7 +2964,6 @@ namespace dae
                                 
                                 // Final shading
                                 PixelShadingV2(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
-                                
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
@@ -3008,11 +3012,12 @@ namespace dae
             if (minY < 0)         continue;
             if (maxY >= m_Height) continue;
 
-            ColorRGB finalColor{colors::Black};
             for (int px{minX}; px <= maxX; ++px)
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
+                    ColorRGB finalColor{colors::Black};
+                    
                     if (m_VisualizeBoundingBox)
                     {
                         finalColor = colors::White;
