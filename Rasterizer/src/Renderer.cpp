@@ -754,7 +754,7 @@ namespace dae
             // WORLD TANGENT
             vertex_out.tangent = vertex_in.tangent;
             // VIEW-DIRECTION
-            vertex_out.viewDirection = (vertex_in.position - m_Camera.GetOrigin()).Normalized();
+            vertex_out.viewDirection = vertex_in.position - m_Camera.GetOrigin();
         }
     }
 
@@ -2806,8 +2806,8 @@ namespace dae
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
                                 
-                                // Average view direction
-                                pixelVertex.viewDirection = (v0.viewDirection + v1.viewDirection + v2.viewDirection) / 3.0f;    
+                                // View direction
+                                pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
                                 
                                 // Final shading
                                 PixelShadingV2(pixelVertex, finalColor, colors::Black, specularColor, glossiness);
@@ -2951,8 +2951,8 @@ namespace dae
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
                                 
-                                // Average view direction
-                                pixelVertex.viewDirection = (v0.viewDirection + v1.viewDirection + v2.viewDirection) / 3.0f;    
+                                // View direction
+                                pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
                                 
                                 // Final shading
                                 PixelShadingV2(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
@@ -3095,8 +3095,8 @@ namespace dae
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normalMap;
                                 
-                                // Average view direction
-                                pixelVertex.viewDirection = (v0.viewDirection + v1.viewDirection + v2.viewDirection) / 3.0f;    
+                                // View direction
+                                pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
                                 
                                 // Final shading
                                 PixelShadingV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
