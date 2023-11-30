@@ -45,8 +45,8 @@ namespace dae
         void ToggleRotation();
 
     private:
-        void InitCamera();
-        void InitializeOutVertices();
+        void InitializeCamera();
+        void InitializeOutputVertices();
         void InitializeTextures();
         
         void VertexTransformationFromWorldToScreenV1(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
@@ -58,6 +58,7 @@ namespace dae
         int GetBufferIndex(int x, int y) const;
 
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
+        void PixelShadingV0(const Vertex_Out& vertex, ColorRGB& finalColor) const;
         void PixelShadingV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor = colors::White) const;
         
         // --- Week 1 ---

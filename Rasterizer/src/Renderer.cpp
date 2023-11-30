@@ -119,8 +119,8 @@ namespace dae
         m_DepthBuffer.resize(m_Width * m_Height);
 
         //Initialize Camera
-        InitCamera();
-        InitializeOutVertices();
+        InitializeCamera();
+        InitializeOutputVertices();
         InitializeTextures();
 
         // --- ASSERTS ---
@@ -695,6 +695,19 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.r * 255),
                                                               static_cast<uint8_t>(finalColor.g * 255),
                                                               static_cast<uint8_t>(finalColor.b * 255));
+    }
+
+    void Renderer::PixelShadingV0(const Vertex_Out& vertex, ColorRGB& finalColor) const
+    {
+        // Normalized light direction
+        const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
+
+        // Observed area
+        const float observedArea{Vector3::Dot(vertex.normal, -lighDirection)};
+
+        if (observedArea < 0) return;
+        
+        finalColor = ColorRGB{observedArea, observedArea, observedArea};
     }
 
     void Renderer::PixelShadingV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor) const
@@ -2235,15 +2248,12 @@ namespace dae
                             }
                             else
                             {
-                                // Diffuse
-                                const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
-
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
                                 pixelVertex.normal = normal;
                                 
                                 // Final shading
-                                PixelShadingV1(pixelVertex, finalColor);
+                                PixelShadingV0(pixelVertex, finalColor);
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
