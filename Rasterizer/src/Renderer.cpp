@@ -121,6 +121,7 @@ namespace dae
         InitializeCamera();
         InitializeOutputVertices();
         InitializeTextures();
+        m_Transform = Matrix::CreateTranslation(m_Translation);
 
         // Material
         m_pMaterial = new Material_CookTorrence(1.0f, 1.0f);
@@ -246,11 +247,9 @@ namespace dae
             meshes_world_list_transformed[0].vertices[idx].tangent = rotMatrix.TransformVector(meshes_world_list[0].vertices[idx].tangent);
         }
 #elif TODO_6
-        // TODO: Move to constructor
-        const auto translation{Matrix::CreateTranslation(0.0f, 0.0f, 50.0f)};
         const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotation{Matrix::CreateRotationY(yaw)};
-        const auto combined = rotation * translation;
+        const auto combined = rotation * m_Transform;
         if (m_Rotate)
         {
             m_AccTime += pTimer->GetElapsed();
@@ -826,7 +825,7 @@ namespace dae
 
         if (observedArea < 0) return;
         
-        finalColor = ColorRGB{observedArea, observedArea, observedArea};
+        finalColor = observedArea;
     }
 
     void Renderer::ShadePixelV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor) const
@@ -875,7 +874,7 @@ namespace dae
         const ColorRGB& specularColor, float glossiness) const
     {
         // Ambient occlusion
-        const ColorRGB ambient{0.025f, 0.025f, 0.025f}; 
+        const ColorRGB ambient{0.025f}; 
     
         // Normalized light direction
         const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
@@ -2961,8 +2960,9 @@ namespace dae
                             // Color
                             if (m_VisualizeDepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
-                                finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
+                                // std::cout << interpolatedZBuffer << '\n';
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.999f, 1.0f, 0.0f, 1.0f)};
+                                finalColor = remappedZBuffer;
                             }
                             else
                             {
@@ -3017,9 +3017,9 @@ namespace dae
             const uint32_t idx2{indices[idx + 2]};
 
             // Triangle's vertices
-            Vertex_Out& v0{vertices_ss_out[idx0]};
-            Vertex_Out& v1{vertices_ss_out[idx1]};
-            Vertex_Out& v2{vertices_ss_out[idx2]};
+            const Vertex_Out& v0{vertices_ss_out[idx0]};
+            const Vertex_Out& v1{vertices_ss_out[idx1]};
+            const Vertex_Out& v2{vertices_ss_out[idx2]};
 
             // Triangle's vertices' positions
             const Vector4& pos0{v0.position};
@@ -3071,6 +3071,14 @@ namespace dae
                         if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
                         {
                             m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
+                            
+                            if (m_VisualizeDepthBuffer)
+                            {
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                finalColor = remappedZBuffer;
+                                UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                                continue;
+                            }
 
                             // Interpolate View Space depth - optimized
                             const float weightedViewSpaceDepthV0{pos0.w * weights[0]};
@@ -3083,7 +3091,18 @@ namespace dae
                             const Vector2 weightedV1UV{v1.uv * pos1.w * weights[1]};
                             const Vector2 weightedV2UV{v2.uv * pos2.w * weights[2]};
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+                            
+                            // --- TEXTURE ---
+                            // Diffuse
+                            const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
+                            // Normal map
+                            ColorRGB normalMapColor{m_pTextureNormal->Sample(uv)};
+                            // Glossiness
+                            const float glossiness{m_pTextureGlossiness->Sample(uv).r};
+                            // Specular
+                            const ColorRGB specularColor{m_pTextureSpecular->Sample(uv)};
 
+                            // --- NORMAL ---
                             // Interpolate Normal + Normalization
                             const Vector3 weightedV0Normal{v0.normal * weights[0]};
                             const Vector3 weightedV1Normal{v1.normal * weights[1]};
@@ -3102,41 +3121,19 @@ namespace dae
                             // Tangent-space transformation matrix
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
                             
-                            // Color
-                            if (m_VisualizeDepthBuffer)
-                            {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
-                                finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
-                            }
-                            else
-                            {
-                                // Normal map
-                                ColorRGB normalMapColor{m_pTextureNormal->Sample(uv)};
-                                // Remap from [0, 1] to [-1, 1]
-                                normalMapColor = 2.0f * normalMapColor - colors::White;
-                                // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
-                                const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
+                            // Remap from [0, 1] to [-1, 1]
+                            normalMapColor = 2.0f * normalMapColor - colors::White;
+                            // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
+                            const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
+                            
+                            // --- PIXEL VERTEX ---
+                            Vertex_Out pixelVertex;
+                            pixelVertex.normal = m_VisualizeNormals ? normalMap : normal;
+                            pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
 
-                                // Diffuse
-                                const ColorRGB diffuseColor{m_pTextureDiffuse->Sample(uv)};
-
-                                // Glossiness
-                                const float glossiness{m_pTextureGlossiness->Sample(uv).r};
-                                
-                                // Specular
-                                const ColorRGB specularColor{m_pTextureSpecular->Sample(uv)};
-
-                                // Pixel vertex
-                                Vertex_Out pixelVertex;
-                                pixelVertex.normal = m_VisualizeNormals ? normalMap : normal;
-                                
-                                // View direction
-                                pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
-                                
-                                // Final shading
-                                ShadePixelV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
-                                
-                            }
+                            // Final shading
+                            ShadePixelV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
+                            
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
                     }

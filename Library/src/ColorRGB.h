@@ -14,6 +14,8 @@ namespace dae
         ColorRGB& operator=(const ColorRGB& other) = default;
         ColorRGB& operator=(ColorRGB&& other) noexcept = default;
 
+        ~ColorRGB() = default;
+
         float r{};
         float g{};
         float b{};

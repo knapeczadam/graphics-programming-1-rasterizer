@@ -55,5 +55,6 @@ namespace dae
  * TODO_3: Vehicle - Diffuse with sampled normals + observed area
  * TODO_4: Vehicle - Specular with sampled normals + observed area
  * TODO_5: Vehicle - Combined
- * TODO_6: Vehicle - Final
+ * TODO_6: Vehicle - Final - Structured, unoptimized, readable
+ * TODO_7: Vehicle - Final - Optimized, unreadable
  */

@@ -30,7 +30,7 @@ namespace dae
         void CalculateProjectionMatrix();
         inline float GetAspectRatio() const { return aspectRatio; }
         inline void SetAspectRatio(float aspect_ratio) { aspectRatio = aspect_ratio; }
-        inline Vector3 GetOrigin() const { return origin; }
+        inline Vector3 GetPosition() const { return origin; }
 
     private:
         float CalculateFOV(float angle) const;
