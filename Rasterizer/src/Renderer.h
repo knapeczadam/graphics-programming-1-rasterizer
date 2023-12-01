@@ -137,12 +137,13 @@ namespace dae
         bool m_VisualizeNormals     {false};
         bool m_Rotate               {false};
 
-        Camera m_Camera        {};
-        float  m_RotationAngle {5.0f};
-        float  m_RotationSpeed {10.0f};
-        float m_AccTime        {0.0f};
-        Matrix m_Transform     {};
-        Vector3 m_Translation  {0.0f, 0.0f, 50.0f};
+        Camera  m_Camera           {};
+        float   m_RotationAngleDeg {5.0f};
+        float   m_RotationAngleRad {1.0f};
+        float   m_RotationSpeed    {10.0f};
+        float   m_AccTime          {0.0f};
+        Matrix  m_Transform        {};
+        Vector3 m_Translation      {0.0f,  0.0f, 50.0f};
 
         int m_Width{};
         int m_Height{};

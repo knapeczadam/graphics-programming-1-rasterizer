@@ -154,7 +154,7 @@ namespace dae
 #if TODO_4
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -163,7 +163,7 @@ namespace dae
 #elif TODO_5
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -172,7 +172,7 @@ namespace dae
 #elif TODO_6
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -186,7 +186,7 @@ namespace dae
 #if TODO_0
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -195,7 +195,7 @@ namespace dae
 #elif TODO_1
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -205,7 +205,7 @@ namespace dae
 #elif TODO_2
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -216,7 +216,7 @@ namespace dae
 #elif TODO_3
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -227,7 +227,7 @@ namespace dae
 #elif TODO_4
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -238,7 +238,7 @@ namespace dae
 #elif TODO_5
         if (not m_Rotate) return;
         m_AccTime += pTimer->GetElapsed();
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleDeg * TO_RADIANS * m_RotationSpeed * m_AccTime};
         const auto rotMatrix{Matrix::CreateRotationY(yaw)};
         for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
         {
@@ -247,7 +247,7 @@ namespace dae
             meshes_world_list_transformed[0].vertices[idx].tangent = rotMatrix.TransformVector(meshes_world_list[0].vertices[idx].tangent);
         }
 #elif TODO_6
-        const float yaw{m_RotationAngle * TO_RADIANS * m_RotationSpeed * m_AccTime};
+        const float yaw{m_RotationAngleRad * m_AccTime};
         const auto rotation{Matrix::CreateRotationY(yaw)};
         const auto combined = rotation * m_Transform;
         if (m_Rotate)
