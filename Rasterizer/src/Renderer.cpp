@@ -457,7 +457,8 @@ namespace dae
 #elif TODO_5
         m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #elif TODO_6
-        m_Camera.Initialize(45.0f, {0.0f, 0.0f, 0.0f});
+        // m_Camera.Initialize(45.0f, {0.0f, 5.0f, 64.0f}, 0.1f, 100.0f);
+        m_Camera.Initialize(45.0f, {0.0f, 0.0f, 0.0f} );
 #endif
 #endif
     }
@@ -877,20 +878,22 @@ namespace dae
         const ColorRGB ambient{0.025f}; 
     
         // Normalized light direction
-        const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
+        Light light;
+        light.direction = {0.577f, -0.577f, 0.577f};
+        light.intensity = 7.0f;
 
         // Observed area
-        const float observedArea{Vector3::Dot(vertex.normal, -lighDirection)};
+        const float observedArea{Vector3::Dot(vertex.normal, -light.direction)};
 
         if (observedArea < 0) return;
 
         // Lambert
-        constexpr float kd{7.0f}; // Light intensity
+        constexpr float kd{1.0f}; // Diffuse Reflection Coefficient
         const ColorRGB lambert{diffuseColor * kd / PI};
 
         // Phong
         constexpr float shininess{25.0f};
-        const Vector3 reflectedLight{Vector3::Reflect(-lighDirection, vertex.normal)};
+        const Vector3 reflectedLight{Vector3::Reflect(-light.direction, vertex.normal)};
         const float cosAlpha{std::max(0.0f, Vector3::Dot(reflectedLight, vertex.viewDirection))};
         const ColorRGB phong{specularColor * std::pow(cosAlpha, glossiness * shininess)};
 
@@ -905,8 +908,8 @@ namespace dae
             case LightingMode::Specular:
                 finalColor = phong * observedArea;
                 break;
-            case LightingMode::Combined:
-                finalColor = (ambient + lambert + phong) * observedArea;
+        case LightingMode::Combined:
+                finalColor = LightUtils::GetRadiance(light) * (ambient + lambert + phong) * observedArea;
                 break;
         }
     }
@@ -3074,7 +3077,7 @@ namespace dae
                             
                             if (m_VisualizeDepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.97f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = remappedZBuffer;
                                 UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                                 continue;

@@ -8,6 +8,30 @@
 
 namespace dae
 {
+    namespace LightUtils
+    {
+        //Direction from target to light
+        inline Vector3 GetDirectionToLight(const Light& light, const Vector3 origin)
+        {
+            return light.origin - origin;
+        }
+
+        inline ColorRGB GetRadiance(const Light& light, const Vector3& target = Vector3::Zero)
+        {
+            ColorRGB radiance;
+            switch (light.type)
+            {
+            case LightType::Point:
+                radiance = light.color * (light.intensity / (light.origin - target).SqrMagnitude());
+                break;
+            case LightType::Directional:
+                radiance = light.color * light.intensity;
+                break;
+            }
+            return radiance;
+        }
+    }
+	
     namespace Utils
     {
         //Just parses vertices and indices
