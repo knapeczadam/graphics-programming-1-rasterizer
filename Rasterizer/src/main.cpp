@@ -83,6 +83,7 @@ int main(int argc, char* args[])
                     pRenderer->ToggleNormalVisibility();
                     break;
                 case SDL_SCANCODE_F7:
+                    pRenderer->CycleShadingMode();
                     break;
                 case SDL_SCANCODE_F8:
                     pTimer->StartBenchmark();

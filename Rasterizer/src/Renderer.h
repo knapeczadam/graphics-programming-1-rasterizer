@@ -10,6 +10,7 @@ struct SDL_Surface;
 
 namespace dae
 {
+    // Forward Declarations
     class Texture;
     struct Mesh;
     struct Vertex;
@@ -23,6 +24,14 @@ namespace dae
         {
             TriangleList,
             TriangleStrip
+        };
+        
+        enum class LightingMode
+        {
+            ObservedArea, // Lambert Cosine Law
+            Diffuse,
+            Specular, 
+            Combined // (Diffuse + Specular) * ObservedArea  
         };
 
     public:
@@ -43,6 +52,7 @@ namespace dae
         void ToggleBoundingBoxVisibility();
         void ToggleNormalVisibility();
         void ToggleRotation();
+        void CycleShadingMode();
 
     private:
         void InitializeCamera();
@@ -127,5 +137,7 @@ namespace dae
 
         int m_Width{};
         int m_Height{};
+        
+        LightingMode m_CurrentLightingMode {LightingMode::Combined};
     };
 }

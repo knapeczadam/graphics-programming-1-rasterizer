@@ -361,6 +361,28 @@ namespace dae
         m_Rotate = not m_Rotate;
     }
 
+    void Renderer::CycleShadingMode()
+    {
+        m_CurrentLightingMode = static_cast<LightingMode>((static_cast<int>(m_CurrentLightingMode) + 1) % (static_cast<
+            int>(LightingMode::Combined) + 1));
+        std::cout << "LIGHTING MODE: ";
+        switch (m_CurrentLightingMode)
+        {
+        case LightingMode::ObservedArea:
+            std::cout << "OBSERVED_AREA" << std::endl;
+            break;
+        case LightingMode::Diffuse:
+            std::cout << "DIFFUSE" << std::endl;
+            break;
+        case LightingMode::Specular:
+            std::cout << "SPECULAR" << std::endl;
+            break;
+        case LightingMode::Combined:
+            std::cout << "COMBINED" << std::endl;
+            break;
+        }
+    }
+
 #pragma region Initialization
     void Renderer::InitializeCamera()
     {
@@ -868,8 +890,21 @@ namespace dae
         const float cosAlpha{std::max(0.0f, Vector3::Dot(reflectedLight, vertex.viewDirection))};
         const ColorRGB phong{specularColor * std::pow(cosAlpha, glossiness * shininess)};
 
-        // Combined
-        finalColor = (lambert + phong + ambient) * observedArea;
+        switch (m_CurrentLightingMode)
+        {
+            case LightingMode::ObservedArea:
+                finalColor = observedArea;
+                break;
+            case LightingMode::Diffuse:
+                finalColor = lambert * observedArea;
+                break;
+            case LightingMode::Specular:
+                finalColor = phong * observedArea;
+                break;
+            case LightingMode::Combined:
+                finalColor = (ambient + lambert + phong) * observedArea;
+                break;
+        }
     }
 
     bool Renderer::SaveBufferToImage() const
@@ -3093,7 +3128,7 @@ namespace dae
 
                                 // Pixel vertex
                                 Vertex_Out pixelVertex;
-                                pixelVertex.normal = normalMap;
+                                pixelVertex.normal = m_VisualizeNormals ? normalMap : normal;
                                 
                                 // View direction
                                 pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
