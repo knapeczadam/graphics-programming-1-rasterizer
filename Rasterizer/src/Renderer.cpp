@@ -1,17 +1,16 @@
-//External includes
+// External includes
 #include "SDL.h"
 #include "SDL_surface.h"
 
-//Project includes
+// Project includes
 #include "Renderer.h"
-
-#include <iostream>
-
 #include "Maths.h"
 #include "Texture.h"
 #include "Utils.h"
-
 #include "Macros.h"
+
+// Standard includes
+#include <iostream>
 
 namespace dae
 {
@@ -70,8 +69,6 @@ namespace dae
             PrimitiveTopology::TriangleList
         },
     };
-    
-    std::vector<Mesh> meshes_world_list_transformed;
 
     std::vector<Mesh> meshes_world_strip
     {
@@ -100,28 +97,33 @@ namespace dae
     // SS = Screen Space
     std::vector<Vertex> vertices_ss{};
     std::vector<Vertex_Out> vertices_ss_out{};
+    std::vector<Mesh> meshes_world_list_transformed{};
 
     std::array<float, 3> weights{};
 #pragma endregion
 
+#pragma region Constructor/Destructor
     Renderer::Renderer(SDL_Window* pWindow) :
         m_pWindow(pWindow)
     {
-        //Initialize
+        // Initialize 
         SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
 
-        //Create Buffers
+        // Create Buffers
         m_pFrontBuffer = SDL_GetWindowSurface(pWindow);
         m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
         m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
 
-        //m_pDepthBufferPixels = new float[m_Width * m_Height];
+        // m_pDepthBufferPixels = new float[m_Width * m_Height];
         m_DepthBuffer.resize(m_Width * m_Height);
 
-        //Initialize Camera
+        // General initialization
         InitializeCamera();
         InitializeOutputVertices();
         InitializeTextures();
+
+        // Material
+        m_pMaterial = new Material_CookTorrence(1.0f, 1.0f);
 
         // --- ASSERTS ---
         assert(not meshes_world_list.empty() and "Meshes list is empty");
@@ -139,7 +141,9 @@ namespace dae
         delete m_pTextureNormal;
         delete m_pTextureSpecular;
     }
+#pragma endregion
 
+#pragma region Update/Render
     void Renderer::Update(Timer* pTimer)
     {
         m_Camera.Update(pTimer);
@@ -340,7 +344,9 @@ namespace dae
         SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
         SDL_UpdateWindowSurface(m_pWindow);
     }
+#pragma endregion
 
+#pragma region Setters
     void Renderer::ToggleDepthBufferVisibility()
     {
         m_VisualizeDepthBuffer = not m_VisualizeDepthBuffer;
@@ -382,6 +388,7 @@ namespace dae
             break;
         }
     }
+#pragma endregion
 
 #pragma region Initialization
     void Renderer::InitializeCamera()
@@ -570,19 +577,9 @@ namespace dae
         // m_pTextureGlossiness = Texture::LoadFromFile("Resources/vehicle_gloss.png");
         // m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
         // m_pTextureSpecular = Texture::LoadFromFile("Resources/vehicle_specular.png");
-        
-        // --- WEEK 1 ---
-#if W1
-#if TODO_0
-#elif TODO_1
-#elif TODO_2
-#elif TODO_3
-#elif TODO_4
-#elif TODO_5
-#endif
 
         // --- WEEK 2 ---
-#elif W2
+#if W2
 #if TODO_1
         m_pTexture = Texture::LoadFromFile("Resources/uv_grid_2.png");
 #elif TODO_2
@@ -622,20 +619,20 @@ namespace dae
         m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
 #elif TODO_3
         m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
-        m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        m_pTextureNormal  = Texture::LoadFromFile("Resources/vehicle_normal.png");
 #elif TODO_4
-        m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_pTextureSpecular = Texture::LoadFromFile("Resources/vehicle_specular.png");
+        m_pTextureNormal     = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        m_pTextureSpecular   = Texture::LoadFromFile("Resources/vehicle_specular.png");
         m_pTextureGlossiness = Texture::LoadFromFile("Resources/vehicle_gloss.png");
 #elif TODO_5
-        m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
-        m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_pTextureSpecular = Texture::LoadFromFile("Resources/vehicle_specular.png");
+        m_pTextureDiffuse    = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
+        m_pTextureNormal     = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        m_pTextureSpecular   = Texture::LoadFromFile("Resources/vehicle_specular.png");
         m_pTextureGlossiness = Texture::LoadFromFile("Resources/vehicle_gloss.png");
 #elif TODO_6
-        m_pTextureDiffuse = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
-        m_pTextureNormal = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_pTextureSpecular = Texture::LoadFromFile("Resources/vehicle_specular.png");
+        m_pTextureDiffuse    = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
+        m_pTextureNormal     = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        m_pTextureSpecular   = Texture::LoadFromFile("Resources/vehicle_specular.png");
         m_pTextureGlossiness = Texture::LoadFromFile("Resources/vehicle_gloss.png");
 #endif
 #endif
@@ -648,7 +645,7 @@ namespace dae
      * \param vertices_in 
      * \param vertices_out 
      */
-    void Renderer::VertexTransformationFromWorldToScreenV1(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
+    void Renderer::TransformFromWorldToScreenV1(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
         {
@@ -669,7 +666,7 @@ namespace dae
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
             // DEPTH
-            assert(v4_view.z != 0.0f and "Renderer::VertexTransformationFromWorldToScreen: Division by zero");
+            assert(v4_view.z != 0.0f and "Renderer::TransformFromWorldToScreenV1: Division by zero");
             vertex_out.position.z = v4_view.z;
             // UV
             vertex_out.uv = vertex_in.uv;
@@ -681,7 +678,7 @@ namespace dae
      * \param vertices_in 
      * \param vertices_out 
      */
-    void Renderer::VertexTransformationFromWorldToScreenV2(const std::vector<Vertex>& vertices_in,
+    void Renderer::TransformFromWorldToScreenV2(const std::vector<Vertex>& vertices_in,
                                                            std::vector<Vertex_Out>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
@@ -701,7 +698,7 @@ namespace dae
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
             // DEPTH
-            assert(v4_proj.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV2: Division by zero");
+            assert(v4_proj.w != 0.0f and "Renderer::TransformFromWorldToScreenV2: Division by zero");
             vertex_out.position.w = v4_proj.w;
             // UV
             vertex_out.uv = vertex_in.uv;
@@ -713,7 +710,7 @@ namespace dae
      * \param vertices_in 
      * \param vertices_out 
      */
-    void Renderer::VertexTransformationFromWorldToScreenV3(const std::vector<Vertex>& vertices_in,
+    void Renderer::TransformFromWorldToScreenV3(const std::vector<Vertex>& vertices_in,
                                                            std::vector<Vertex_Out>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
@@ -726,7 +723,7 @@ namespace dae
             // WORLD -> VIEW - PROJECTION
             const Vector4 projectedPos = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(positionIn);
             // DEPTH
-            assert(projectedPos.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV3: Division by zero");
+            assert(projectedPos.w != 0.0f and "Renderer::TransformFromWorldToScreenV3: Division by zero");
             vertex_out.position.w = 1.0f / projectedPos.w;
             // NDC
             vertex_out.position.x = projectedPos.x * vertex_out.position.w;
@@ -746,7 +743,7 @@ namespace dae
      * \param vertices_in 
      * \param vertices_out 
      */
-    void Renderer::VertexTransformationFromWorldToScreenV4(const std::vector<Vertex>& vertices_in,
+    void Renderer::TransformFromWorldToScreenV4(const std::vector<Vertex>& vertices_in,
                                                            std::vector<Vertex_Out>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
@@ -759,7 +756,7 @@ namespace dae
             // WORLD -> VIEW -> PROJECTION
             const Vector4 projectedPos = (m_Camera.invViewMatrix * m_Camera.projectionMatrix).TransformPoint(positionIn);
             // DEPTH
-            assert(projectedPos.w != 0.0f and "Renderer::VertexTransformationFromWorldToScreenV4: Division by zero");
+            assert(projectedPos.w != 0.0f and "Renderer::TransformFromWorldToScreenV4: Division by zero");
             vertex_out.position.w = 1.0f / projectedPos.w;
             // NDC
             vertex_out.position.x = projectedPos.x * vertex_out.position.w;
@@ -776,11 +773,11 @@ namespace dae
             // WORLD TANGENT
             vertex_out.tangent = vertex_in.tangent;
             // VIEW-DIRECTION
-            vertex_out.viewDirection = vertex_in.position - m_Camera.GetOrigin();
+            vertex_out.viewDirection = vertex_in.position - m_Camera.GetPosition();
         }
     }
 
-    void Renderer::VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
+    void Renderer::TransformFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
     {
         for (size_t i{0}; i < vertices_in.size(); ++i)
         {
@@ -810,8 +807,16 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.g * 255),
                                                               static_cast<uint8_t>(finalColor.b * 255));
     }
+    
+    bool Renderer::SaveBufferToImage() const
+    {
+        return SDL_SaveBMP(m_pBackBuffer, "Rasterizer_ColorBuffer.bmp");
+    }
 
-    void Renderer::PixelShadingV0(const Vertex_Out& vertex, ColorRGB& finalColor) const
+#pragma endregion
+
+#pragma region Shader Functions
+    void Renderer::ShadePixelV0(const Vertex_Out& vertex, ColorRGB& finalColor) const
     {
         // Normalized light direction
         const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
@@ -824,7 +829,7 @@ namespace dae
         finalColor = ColorRGB{observedArea, observedArea, observedArea};
     }
 
-    void Renderer::PixelShadingV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor) const
+    void Renderer::ShadePixelV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor) const
     {
         // Normalized light direction
         const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
@@ -842,7 +847,7 @@ namespace dae
         finalColor = lambert * observedArea;
     }
 
-    void Renderer::PixelShadingV2(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor, const ColorRGB& specularColor, float glossiness) const
+    void Renderer::ShadePixelV2(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor, const ColorRGB& specularColor, float glossiness) const
     {
         // Normalized light direction
         const Vector3 lighDirection{0.577f, -0.577f, 0.577f};
@@ -866,7 +871,7 @@ namespace dae
         finalColor = (lambert + phong) * observedArea;
     }
 
-    void Renderer::PixelShadingV3(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor,
+    void Renderer::ShadePixelV3(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor,
         const ColorRGB& specularColor, float glossiness) const
     {
         // Ambient occlusion
@@ -906,11 +911,6 @@ namespace dae
                 break;
         }
     }
-
-    bool Renderer::SaveBufferToImage() const
-    {
-        return SDL_SaveBMP(m_pBackBuffer, "Rasterizer_ColorBuffer.bmp");
-    }
 #pragma endregion
 
 #pragma region Week 1
@@ -940,7 +940,7 @@ namespace dae
      */
     void Renderer::Render_W1_TODO_1() const
     {
-        VertexTransformationFromNDCtoScreenSpace(triangle_vertices_ndc, vertices_ss);
+        TransformFromNDCtoScreenSpace(triangle_vertices_ndc, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
         const Vector2 v1{vertices_ss[1].position.GetXY()};
@@ -975,7 +975,7 @@ namespace dae
      */
     void Renderer::Render_W1_TODO_2() const
     {
-        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_2, vertices_ss);
+        TransformFromWorldToScreenV1(triangle_vertices_world_todo_2, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
         const Vector2 v1{vertices_ss[1].position.GetXY()};
@@ -1001,7 +1001,7 @@ namespace dae
 
     void Renderer::Render_W1_TODO_3() const
     {
-        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_3, vertices_ss);
+        TransformFromWorldToScreenV1(triangle_vertices_world_todo_3, vertices_ss);
 
         const Vector2 v0{vertices_ss[0].position.GetXY()};
         const Vector2 v1{vertices_ss[1].position.GetXY()};
@@ -1033,7 +1033,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_4, vertices_ss);
+        TransformFromWorldToScreenV1(triangle_vertices_world_todo_4, vertices_ss);
 
         for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
         {
@@ -1080,7 +1080,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV1(triangle_vertices_world_todo_4, vertices_ss);
+        TransformFromWorldToScreenV1(triangle_vertices_world_todo_4, vertices_ss);
 
         for (size_t triangleIdx{0}; triangleIdx < vertices_ss.size(); triangleIdx += 3)
         {
@@ -1141,7 +1141,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
         
-        VertexTransformationFromWorldToScreenV1(meshes_world_list[0].vertices, vertices_ss);
+        TransformFromWorldToScreenV1(meshes_world_list[0].vertices, vertices_ss);
 
         for (size_t idx{0}; idx < meshes_world_list[0].indices.size(); idx += 3)
         {
@@ -1208,7 +1208,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
+        TransformFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -1293,7 +1293,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
+        TransformFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -1381,7 +1381,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
+        TransformFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -1475,7 +1475,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
+        TransformFromWorldToScreenV1(meshes_world_strip[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -1572,7 +1572,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV1(meshes_world_list[0].vertices, vertices_ss);
+        TransformFromWorldToScreenV1(meshes_world_list[0].vertices, vertices_ss);
 
         const std::vector<uint32_t>& indices{meshes_world_list[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -1650,7 +1650,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV2(meshes_world_strip[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV2(meshes_world_strip[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_strip[0].indices};
         for (size_t idx{0}; idx < indices.size() - 2; ++idx)
@@ -1754,7 +1754,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV2(meshes_world_list[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV2(meshes_world_list[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -1841,7 +1841,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV2(meshes_world_list[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV2(meshes_world_list[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -1936,7 +1936,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV2(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV2(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2031,7 +2031,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV2(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV2(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2132,7 +2132,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV3(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV3(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2235,7 +2235,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV3(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV3(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2336,7 +2336,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2433,7 +2433,7 @@ namespace dae
                                 pixelVertex.normal = normal;
                                 
                                 // Final shading
-                                PixelShadingV0(pixelVertex, finalColor);
+                                ShadePixelV0(pixelVertex, finalColor);
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
@@ -2449,7 +2449,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2566,7 +2566,7 @@ namespace dae
                                 pixelVertex.normal = normalMap;
                                 
                                 // Final shading
-                                PixelShadingV0(pixelVertex, finalColor);
+                                ShadePixelV0(pixelVertex, finalColor);
                                 
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2583,7 +2583,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2703,7 +2703,7 @@ namespace dae
                                 pixelVertex.normal = normalMap;
                                 
                                 // Final shading
-                                PixelShadingV1(pixelVertex, finalColor, diffuseColor);
+                                ShadePixelV1(pixelVertex, finalColor, diffuseColor);
                                 
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2720,7 +2720,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2845,7 +2845,7 @@ namespace dae
                                 pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
                                 
                                 // Final shading
-                                PixelShadingV2(pixelVertex, finalColor, colors::Black, specularColor, glossiness);
+                                ShadePixelV2(pixelVertex, finalColor, colors::Black, specularColor, glossiness);
                                 
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2862,7 +2862,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -2990,7 +2990,7 @@ namespace dae
                                 pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
                                 
                                 // Final shading
-                                PixelShadingV2(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
+                                ShadePixelV2(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                         }
@@ -3006,7 +3006,7 @@ namespace dae
 
         SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
-        VertexTransformationFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -3134,7 +3134,7 @@ namespace dae
                                 pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
                                 
                                 // Final shading
-                                PixelShadingV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
+                                ShadePixelV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
                                 
                             }
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));

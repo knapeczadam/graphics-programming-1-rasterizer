@@ -1,9 +1,11 @@
 #pragma once
 
+// Project includes
+#include "Camera.h"
+
+// Standard includes
 #include <cstdint>
 #include <vector>
-
-#include "Camera.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -11,9 +13,10 @@ struct SDL_Surface;
 namespace dae
 {
     // Forward Declarations
-    class Texture;
     struct Mesh;
     struct Vertex;
+    
+    class Texture;
     class Timer;
     class Scene;
 
@@ -38,9 +41,9 @@ namespace dae
         Renderer(SDL_Window* pWindow);
         ~Renderer();
 
-        Renderer(const Renderer&) = delete;
-        Renderer(Renderer&&) noexcept = delete;
-        Renderer& operator=(const Renderer&) = delete;
+        Renderer(const Renderer&)                = delete;
+        Renderer(Renderer&&) noexcept            = delete;
+        Renderer& operator=(const Renderer&)     = delete;
         Renderer& operator=(Renderer&&) noexcept = delete;
 
         void Update(Timer* pTimer);
@@ -58,20 +61,23 @@ namespace dae
         void InitializeCamera();
         void InitializeOutputVertices();
         void InitializeTextures();
-        
-        void VertexTransformationFromWorldToScreenV1(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
-        void VertexTransformationFromWorldToScreenV2(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
-        void VertexTransformationFromWorldToScreenV3(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
-        void VertexTransformationFromWorldToScreenV4(const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
-        void VertexTransformationFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
+
+        // Vertex Transformation
+        void TransformFromWorldToScreenV1(const  std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
+        void TransformFromWorldToScreenV2(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void TransformFromWorldToScreenV3(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void TransformFromWorldToScreenV4(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void TransformFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
 
         int GetBufferIndex(int x, int y) const;
 
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
-        void PixelShadingV0(const Vertex_Out& vertex, ColorRGB& finalColor) const;
-        void PixelShadingV1(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor = colors::White) const;
-        void PixelShadingV2(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor = colors::White, const ColorRGB& specularColor = colors::White, float glossiness = 0.0f) const;
-        void PixelShadingV3(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor = colors::White, const ColorRGB& specularColor = colors::White, float glossiness = 0.0f) const;
+
+        // Shading
+        void ShadePixelV0(const Vertex_Out& vertex, ColorRGB& finalColor) const;
+        void ShadePixelV1(const Vertex_Out& vertex, ColorRGB& finalColor, const  ColorRGB& diffuseColor = colors::White) const;
+        void ShadePixelV2(const Vertex_Out& vertex, ColorRGB& finalColor, const  ColorRGB& diffuseColor = colors::White, const  ColorRGB& specularColor = colors::White, float glossiness = 0.0f) const;
+        void ShadePixelV3(const Vertex_Out& vertex, ColorRGB& finalColor, const  ColorRGB& diffuseColor = colors::White, const  ColorRGB& specularColor = colors::White, float glossiness = 0.0f) const;
         
         // --- Week 1 ---
         void Render_W1_TODO_0() const;
@@ -107,21 +113,22 @@ namespace dae
         void Render_W4_TODO_6();
 
     private:
-        SDL_Window* m_pWindow{};
-
-        SDL_Surface* m_pFrontBuffer{nullptr};
-        SDL_Surface* m_pBackBuffer{nullptr};
-        uint32_t* m_pBackBufferPixels{nullptr};
+        SDL_Window*  m_pWindow           {nullptr};
+        SDL_Surface* m_pFrontBuffer      {nullptr};
+        SDL_Surface* m_pBackBuffer       {nullptr};
+        uint32_t*    m_pBackBufferPixels {nullptr};
 
         // General texture
         Texture* m_pTexture           {nullptr};
+
+        // Material
+        Material* m_pMaterial         {nullptr};
 
         // Vehicle
         Texture* m_pTextureDiffuse    {nullptr};
         Texture* m_pTextureGlossiness {nullptr};
         Texture* m_pTextureNormal     {nullptr};
         Texture* m_pTextureSpecular   {nullptr};
-        
 
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer {};
