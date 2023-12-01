@@ -65,22 +65,38 @@ int main(int argc, char* args[])
                 isLooping = false;
                 break;
             case SDL_KEYUP:
-                if (e.key.keysym.scancode == SDL_SCANCODE_X)
-                    takeScreenshot = true;
-                if (e.key.keysym.scancode == SDL_SCANCODE_F3)
+                switch (e.key.keysym.scancode)
+                {
+                case SDL_SCANCODE_F3:
                     pRenderer->ToggleBoundingBoxVisibility();
-                if (e.key.keysym.scancode == SDL_SCANCODE_F6)
-                    pTimer->StartBenchmark();
-                if (e.key.keysym.scancode == SDL_SCANCODE_E)
-                    pRenderer->GetCamera().IncreaseFOV();
-                if (e.key.keysym.scancode == SDL_SCANCODE_Q)
-                    pRenderer->GetCamera().DecreaseFOV();
-                if (e.key.keysym.scancode == SDL_SCANCODE_R)
-                    pRenderer->ToggleRotation();
-                if (e.key.keysym.scancode == SDL_SCANCODE_N)
-                    pRenderer->ToggleNormalVisibility();
-                if (e.key.keysym.scancode == SDL_SCANCODE_Z)
+                    break;
+                case SDL_SCANCODE_F4:
+                case SDL_SCANCODE_Z:
                     pRenderer->ToggleDepthBufferVisibility();
+                    break;
+                case SDL_SCANCODE_F5:
+                case SDL_SCANCODE_R:
+                    pRenderer->ToggleRotation();
+                    break;
+                case SDL_SCANCODE_F6:
+                case SDL_SCANCODE_N:
+                    pRenderer->ToggleNormalVisibility();
+                    break;
+                case SDL_SCANCODE_F7:
+                    break;
+                case SDL_SCANCODE_F8:
+                    pTimer->StartBenchmark();
+                    break;
+                case SDL_SCANCODE_E:
+                    pRenderer->GetCamera().IncreaseFOV();
+                    break;
+                case SDL_SCANCODE_Q:
+                    pRenderer->GetCamera().DecreaseFOV();
+                    break;
+                case SDL_SCANCODE_X:
+                    takeScreenshot = true;
+                    break;
+                }
                 break;
             case SDL_MOUSEWHEEL:
                 pRenderer->GetCamera().Scroll(e.wheel);
