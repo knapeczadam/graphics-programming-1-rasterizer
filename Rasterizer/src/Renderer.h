@@ -8,6 +8,7 @@
 #include <vector>
 
 struct SDL_Window;
+struct SDL_Renderer;
 struct SDL_Surface;
 
 namespace dae
@@ -39,6 +40,7 @@ namespace dae
 
     public:
         Renderer(SDL_Window* pWindow);
+        Renderer(SDL_Window* pWindow, SDL_Renderer* pRenderer);
         ~Renderer();
 
         Renderer(const Renderer&)                = delete;
@@ -116,6 +118,7 @@ namespace dae
         SDL_Window*  m_pWindow           {nullptr};
         SDL_Surface* m_pFrontBuffer      {nullptr};
         SDL_Surface* m_pBackBuffer       {nullptr};
+        SDL_Renderer* m_pRenderer        {nullptr};
         uint32_t*    m_pBackBufferPixels {nullptr};
 
         // General texture

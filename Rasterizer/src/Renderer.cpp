@@ -1,6 +1,10 @@
-// External includes
+// SDL includes
 #include "SDL.h"
 #include "SDL_surface.h"
+
+// ImGui includes
+#include "imgui.h"
+#include "imgui_impl_sdlrenderer2.h"
 
 // Project includes
 #include "Renderer.h"
@@ -129,6 +133,12 @@ namespace dae
         // --- ASSERTS ---
         assert(not meshes_world_list.empty() and "Meshes list is empty");
         assert(not meshes_world_strip.empty() and "Meshes strip is empty");
+    }
+
+    Renderer::Renderer(SDL_Window* pWindow, SDL_Renderer* pRenderer)
+        : Renderer(pWindow)
+    {
+        m_pRenderer = pRenderer;
     }
 
     Renderer::~Renderer()
@@ -341,7 +351,21 @@ namespace dae
         //Update SDL Surface
         SDL_UnlockSurface(m_pBackBuffer);
         SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
-        SDL_UpdateWindowSurface(m_pWindow);
+        // SDL_UpdateWindowSurface(m_pWindow);
+
+        // ImGui Window
+        ImGui::Begin("Render Time");
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                    ImGui::GetIO().Framerate);
+        ImGui::End();
+
+        // ImGui Rendering
+        ImGui::Render();
+        SDL_RenderSetScale(m_pRenderer, ImGui::GetIO().DisplayFramebufferScale.x, ImGui::GetIO().DisplayFramebufferScale.y);
+        auto* frontTexturePtr = SDL_CreateTextureFromSurface(m_pRenderer, m_pFrontBuffer);
+        SDL_RenderCopy(m_pRenderer, frontTexturePtr, NULL, NULL);
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+        SDL_RenderPresent(m_pRenderer);
     }
 #pragma endregion
 

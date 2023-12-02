@@ -4,6 +4,12 @@
 #include "SDL_surface.h"
 #undef main
 
+// ImGui includes
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_sdlrenderer2.h"
+#include <stdio.h>
+
 //Standard includes
 #include <iostream>
 
@@ -13,9 +19,14 @@
 
 using namespace dae;
 
-void ShutDown(SDL_Window* pWindow)
+void ShutDown(SDL_Window* windowPtr, SDL_Renderer* SDLRendererPtr)
 {
-    SDL_DestroyWindow(pWindow);
+    ImGui_ImplSDLRenderer2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_DestroyRenderer(SDLRendererPtr);
+    SDL_DestroyWindow(windowPtr);
     SDL_Quit();
 }
 
@@ -28,37 +39,60 @@ int main(int argc, char* args[])
     //Create window + surfaces
     SDL_Init(SDL_INIT_VIDEO);
 
-    const uint32_t width = 640;
-    const uint32_t height = 480;
+    constexpr uint32_t width  = 640;
+    constexpr uint32_t height = 480;
 
-    SDL_Window* pWindow = SDL_CreateWindow(
+    SDL_Window* windowPtr = SDL_CreateWindow(
         "Rasterizer - **Ádám Knapecz (2DAE09)**",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         width, height, 0);
+    SDL_Renderer* SDLRendererPtr = SDL_CreateRenderer(windowPtr, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
 
-    if (!pWindow)
+    if (not windowPtr)
+    {
+        SDL_Log("Error creating SDL_Window!");
         return 1;
+    }
+    if (not SDLRendererPtr)
+    {
+        SDL_Log("Error creating SDL_Renderer!");
+        return 1;
+    }
 
     //Initialize "framework"
-    const auto pTimer = new Timer();
-    const auto pRenderer = new Renderer(pWindow);
+    const auto timerPtr    = new Timer();
+    const auto rendererPtr = new Renderer(windowPtr, SDLRendererPtr);
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL2_InitForSDLRenderer(windowPtr, SDLRendererPtr);
+    ImGui_ImplSDLRenderer2_Init(SDLRendererPtr);
 
     //Start loop
-    pTimer->Start();
+    timerPtr->Start();
 
-    // Start Benchmark
-    // TODO pTimer->StartBenchmark();
-
-    float printTimer = 0.f;
-    bool isLooping = true;
-    bool takeScreenshot = false;
+    float printTimer     = 0.f;
+    bool  isLooping      = true;
+    bool  takeScreenshot = false;
     while (isLooping)
     {
         //--------- Get input events ---------
         SDL_Event e;
         while (SDL_PollEvent(&e))
         {
+            // ImGui events
+            ImGui_ImplSDL2_ProcessEvent(&e);
+            
             switch (e.type)
             {
             case SDL_QUIT:
@@ -68,31 +102,31 @@ int main(int argc, char* args[])
                 switch (e.key.keysym.scancode)
                 {
                 case SDL_SCANCODE_F3:
-                    pRenderer->ToggleBoundingBoxVisibility();
+                    rendererPtr->ToggleBoundingBoxVisibility();
                     break;
                 case SDL_SCANCODE_F4:
                 case SDL_SCANCODE_Z:
-                    pRenderer->ToggleDepthBufferVisibility();
+                    rendererPtr->ToggleDepthBufferVisibility();
                     break;
                 case SDL_SCANCODE_F5:
                 case SDL_SCANCODE_R:
-                    pRenderer->ToggleRotation();
+                    rendererPtr->ToggleRotation();
                     break;
                 case SDL_SCANCODE_F6:
                 case SDL_SCANCODE_N:
-                    pRenderer->ToggleNormalVisibility();
+                    rendererPtr->ToggleNormalVisibility();
                     break;
                 case SDL_SCANCODE_F7:
-                    pRenderer->CycleShadingMode();
+                    rendererPtr->CycleShadingMode();
                     break;
                 case SDL_SCANCODE_F8:
-                    pTimer->StartBenchmark();
+                    timerPtr->StartBenchmark();
                     break;
                 case SDL_SCANCODE_E:
-                    pRenderer->GetCamera().IncreaseFOV();
+                    rendererPtr->GetCamera().IncreaseFOV();
                     break;
                 case SDL_SCANCODE_Q:
-                    pRenderer->GetCamera().DecreaseFOV();
+                    rendererPtr->GetCamera().DecreaseFOV();
                     break;
                 case SDL_SCANCODE_X:
                     takeScreenshot = true;
@@ -100,42 +134,47 @@ int main(int argc, char* args[])
                 }
                 break;
             case SDL_MOUSEWHEEL:
-                pRenderer->GetCamera().Scroll(e.wheel);
+                rendererPtr->GetCamera().Scroll(e.wheel);
                 break;
             }
         }
 
+        // Start the Dear ImGui frame
+        ImGui_ImplSDLRenderer2_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
         //--------- Update ---------
-        pRenderer->Update(pTimer);
+        rendererPtr->Update(timerPtr);
 
         //--------- Render ---------
-        pRenderer->Render();
+        rendererPtr->Render();
 
         //--------- Timer ---------
-        pTimer->Update();
-        printTimer += pTimer->GetElapsed();
+        timerPtr->Update();
+        printTimer += timerPtr->GetElapsed();
         if (printTimer >= 1.f)
         {
             printTimer = 0.f;
-            std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+            // std::cout << "dFPS: " << timerPtr->GetdFPS() << std::endl;
         }
 
         //Save screenshot after full render
         if (takeScreenshot)
         {
-            if (!pRenderer->SaveBufferToImage())
+            if (!rendererPtr->SaveBufferToImage())
                 std::cout << "Screenshot saved!" << std::endl;
             else
                 std::cout << "Something went wrong. Screenshot not saved!" << std::endl;
             takeScreenshot = false;
         }
     }
-    pTimer->Stop();
+    timerPtr->Stop();
 
     //Shutdown "framework"
-    delete pRenderer;
-    delete pTimer;
+    delete rendererPtr;
+    delete timerPtr;
 
-    ShutDown(pWindow);
+    ShutDown(windowPtr, SDLRendererPtr);
     return 0;
 }
