@@ -51,8 +51,16 @@ namespace dae
         void Update(Timer* pTimer);
         void Render();
 
+        // Render helpers
+        void SwapBuffers() const;
+        void UpdateWindow() const;
+        void UpdateRenderer() const;
+        void CreateUI();
+    
         bool SaveBufferToImage() const;
         inline Camera& GetCamera() { return m_Camera; }
+
+        // Setters
         void ToggleDepthBufferVisibility();
         void ToggleBoundingBoxVisibility();
         void ToggleNormalVisibility();
@@ -60,6 +68,7 @@ namespace dae
         void CycleShadingMode();
 
     private:
+        // Initialization
         void InitializeCamera();
         void InitializeOutputVertices();
         void InitializeTextures();
@@ -71,8 +80,8 @@ namespace dae
         void TransformFromWorldToScreenV4(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void TransformFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
 
+        // Helper functions
         int GetBufferIndex(int x, int y) const;
-
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
 
         // Shading

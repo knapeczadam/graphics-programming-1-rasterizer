@@ -284,75 +284,125 @@ namespace dae
 #if W1
 #if TODO_0
         Render_W1_TODO_0();
+        UpdateWindow();
 #elif TODO_1
         Render_W1_TODO_1();
+        UpdateWindow();
 #elif TODO_2
         Render_W1_TODO_2();
+        UpdateWindow();
 #elif TODO_3
         Render_W1_TODO_3();
+        UpdateWindow();
 #elif TODO_4
         Render_W1_TODO_4();
+        UpdateWindow();
 #elif TODO_5
         Render_W1_TODO_5();
+        UpdateWindow();
 #endif
 
         // --- WEEK 2 ---
 #elif W2
 #if TODO_1
         Render_W2_TODO_1();
+        UpdateWindow();
 #elif TODO_2
         Render_W2_TODO_2();
+        UpdateWindow();
 #elif TODO_3
         Render_W2_TODO_3();
+        UpdateWindow();
 #elif TODO_4
         Render_W2_TODO_4();
+        UpdateWindow();
 #elif TODO_5
         Render_W2_TODO_5();
+        UpdateWindow();
 #endif
 
         // --- WEEK 3 ---
 #elif W3
 #if TODO_0
         Render_W3_TODO_0();
+        UpdateWindow();
 #elif TODO_1
         Render_W3_TODO_1();
+        UpdateWindow();
 #elif TODO_2
         Render_W3_TODO_2();
+        UpdateWindow();
 #elif TODO_3
         Render_W3_TODO_3();
+        UpdateWindow();
 #elif TODO_4
         Render_W3_TODO_4();
+        UpdateWindow();
 #elif TODO_5
         Render_W3_TODO_5();
+        UpdateWindow();
 #elif TODO_6
         Render_W3_TODO_6();
+        UpdateWindow();
 #endif
 
         // --- WEEK 4 ---
 #elif W4
 #if TODO_0
         Render_W4_TODO_0();
+        UpdateWindow();
 #elif TODO_1
         Render_W4_TODO_1();
+        UpdateWindow();
 #elif TODO_2
         Render_W4_TODO_2();
+        UpdateWindow();
 #elif TODO_3
         Render_W4_TODO_3();
+        UpdateWindow();
 #elif TODO_4
         Render_W4_TODO_4();
+        UpdateWindow();
 #elif TODO_5
         Render_W4_TODO_5();
+        UpdateWindow();
 #elif TODO_6
         Render_W4_TODO_6();
+        CreateUI();
+        UpdateRenderer();
 #endif
 #endif
+    }
+#pragma endregion
 
-        //@END
-        //Update SDL Surface
+#pragma region Render helpers
+    void Renderer::SwapBuffers() const
+    {
         SDL_UnlockSurface(m_pBackBuffer);
         SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
-        // SDL_UpdateWindowSurface(m_pWindow);
+    }
 
+    void Renderer::UpdateWindow() const
+    {
+        SwapBuffers();
+        SDL_UpdateWindowSurface(m_pWindow);
+    }
+
+    void Renderer::UpdateRenderer() const
+    {
+        // ImGui Rendering
+        SwapBuffers();
+        
+        ImGui::Render();
+        SDL_RenderSetScale(m_pRenderer, ImGui::GetIO().DisplayFramebufferScale.x, ImGui::GetIO().DisplayFramebufferScale.y);
+        auto* frontTexturePtr = SDL_CreateTextureFromSurface(m_pRenderer, m_pFrontBuffer);
+        SDL_RenderCopy(m_pRenderer, frontTexturePtr, nullptr, nullptr);
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+        SDL_RenderPresent(m_pRenderer);
+    }
+
+    void Renderer::CreateUI()
+    {
         // ImGui Window
         ImGui::Begin("Properties");
         ImGui::SliderFloat("Ambient", &m_ambient, 0.0f, 1.0f);
@@ -363,14 +413,6 @@ namespace dae
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
         ImGui::End();
-
-        // ImGui Rendering
-        ImGui::Render();
-        SDL_RenderSetScale(m_pRenderer, ImGui::GetIO().DisplayFramebufferScale.x, ImGui::GetIO().DisplayFramebufferScale.y);
-        auto* frontTexturePtr = SDL_CreateTextureFromSurface(m_pRenderer, m_pFrontBuffer);
-        SDL_RenderCopy(m_pRenderer, frontTexturePtr, NULL, NULL);
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-        SDL_RenderPresent(m_pRenderer);
     }
 #pragma endregion
 
