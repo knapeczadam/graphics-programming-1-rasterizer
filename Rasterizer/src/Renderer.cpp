@@ -354,7 +354,12 @@ namespace dae
         // SDL_UpdateWindowSurface(m_pWindow);
 
         // ImGui Window
-        ImGui::Begin("Render Time");
+        ImGui::Begin("Properties");
+        ImGui::SliderFloat("Ambient", &m_ambient, 0.0f, 1.0f);
+        ImGui::SliderFloat3("Light direction", m_lightDir, -1.0f, 1.0f);
+        ImGui::SliderFloat("Light intensity", &m_lightIntensity, 0.0f, 20.0f);
+        ImGui::SliderFloat("KD (Diffuse reflection coefficient)", &m_kd, 0.0f, 20.0f);
+        ImGui::SliderFloat("Shininess", &m_shininess, 0.0f, 100.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
         ImGui::End();
@@ -898,13 +903,10 @@ namespace dae
     void Renderer::ShadePixelV3(const Vertex_Out& vertex, ColorRGB& finalColor, const ColorRGB& diffuseColor,
         const ColorRGB& specularColor, float glossiness) const
     {
-        // Ambient occlusion
-        const ColorRGB ambient{0.025f}; 
-    
         // Normalized light direction
         Light light;
-        light.direction = {0.577f, -0.577f, 0.577f};
-        light.intensity = 7.0f;
+        light.direction = {m_lightDir[0], m_lightDir[1], m_lightDir[2]}.Normalized();
+        light.intensity = m_lightIntensity;
 
         // Observed area
         const float observedArea{Vector3::Dot(vertex.normal, -light.direction)};
@@ -912,14 +914,12 @@ namespace dae
         if (observedArea < 0) return;
 
         // Lambert
-        constexpr float kd{1.0f}; // Diffuse Reflection Coefficient
-        const ColorRGB lambert{diffuseColor * kd / PI};
+        const ColorRGB lambert{diffuseColor * m_kd / PI};
 
         // Phong
-        constexpr float shininess{25.0f};
         const Vector3 reflectedLight{Vector3::Reflect(-light.direction, vertex.normal)};
         const float cosAlpha{std::max(0.0f, Vector3::Dot(reflectedLight, vertex.viewDirection))};
-        const ColorRGB phong{specularColor * std::pow(cosAlpha, glossiness * shininess)};
+        const ColorRGB phong{specularColor * std::pow(cosAlpha, glossiness * m_shininess)};
 
         switch (m_CurrentLightingMode)
         {
@@ -933,7 +933,7 @@ namespace dae
                 finalColor = phong * observedArea;
                 break;
         case LightingMode::Combined:
-                finalColor = LightUtils::GetRadiance(light) * (ambient + lambert + phong) * observedArea;
+                finalColor = LightUtils::GetRadiance(light) * (m_ambient + lambert + phong) * observedArea;
                 break;
         }
     }

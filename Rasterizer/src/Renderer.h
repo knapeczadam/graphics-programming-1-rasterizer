@@ -152,5 +152,11 @@ namespace dae
         int m_Height{};
         
         LightingMode m_CurrentLightingMode {LightingMode::Combined};
+
+        float m_ambient        {0.025f};
+        float m_lightDir[3]    {0.577, -0.577f, 0.577};      
+        float m_lightIntensity {7.0f};
+        float m_kd             {1.0f}; // Diffuse reflection coefficient
+        float m_shininess      {25.0f};
     };
 }

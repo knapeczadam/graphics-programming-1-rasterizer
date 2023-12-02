@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "ImGui/imgui.h"
+
 namespace dae
 {
     Camera::Camera(const Vector3& _origin, float _fovAngle)
@@ -102,6 +104,12 @@ namespace dae
 
     void Camera::RotateCamera(float deltaTime)
     {
+        // Check whether the mouse is over the ImGui window
+        if (ImGui::GetIO().WantCaptureMouse)
+        {
+            return;
+        }
+        
         int mouseX{}, mouseY{};
         const int threshold{1};
         const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
