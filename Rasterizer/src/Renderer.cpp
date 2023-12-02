@@ -905,7 +905,7 @@ namespace dae
     {
         // Normalized light direction
         Light light;
-        light.direction = {m_lightDir[0], m_lightDir[1], m_lightDir[2]}.Normalized();
+        light.direction = Vector3{m_lightDir[0], m_lightDir[1], m_lightDir[2]}.Normalized();
         light.intensity = m_lightIntensity;
 
         // Observed area
