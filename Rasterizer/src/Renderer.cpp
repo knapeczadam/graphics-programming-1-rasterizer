@@ -687,7 +687,7 @@ namespace dae
         // m_DiffuseTexturePtr = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
         // m_GlossinessTexturePtr = Texture::LoadFromFile("Resources/vehicle_gloss.png");
         // m_NormalTexturePtr = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        // m_SpeculatTexturePtr = Texture::LoadFromFile("Resources/vehicle_specular.png");
+        // m_SpecularTexturePtr = Texture::LoadFromFile("Resources/vehicle_specular.png");
 
         // --- WEEK 2 ---
 #if W2
@@ -733,12 +733,12 @@ namespace dae
         m_NormalTexturePtr  = Texture::LoadFromFile("Resources/vehicle_normal.png");
 #elif TODO_4
         m_NormalTexturePtr     = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_SpeculatTexturePtr   = Texture::LoadFromFile("Resources/vehicle_specular.png");
+        m_SpecularTexturePtr   = Texture::LoadFromFile("Resources/vehicle_specular.png");
         m_GlossinessTexturePtr = Texture::LoadFromFile("Resources/vehicle_gloss.png");
 #elif TODO_5
         m_DiffuseTexturePtr    = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
         m_NormalTexturePtr     = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_SpeculatTexturePtr   = Texture::LoadFromFile("Resources/vehicle_specular.png");
+        m_SpecularTexturePtr   = Texture::LoadFromFile("Resources/vehicle_specular.png");
         m_GlossinessTexturePtr = Texture::LoadFromFile("Resources/vehicle_gloss.png");
 #elif TODO_6
         m_DiffuseTexturePtr    = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
@@ -2046,7 +2046,7 @@ namespace dae
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
 
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2141,7 +2141,7 @@ namespace dae
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2202,7 +2202,7 @@ namespace dae
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2242,7 +2242,7 @@ namespace dae
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2303,7 +2303,7 @@ namespace dae
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2343,7 +2343,7 @@ namespace dae
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2406,7 +2406,7 @@ namespace dae
             {
                 for (int py{minY}; py <= maxY; ++py)
                 {
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2446,7 +2446,7 @@ namespace dae
                             const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2508,7 +2508,7 @@ namespace dae
                 {
                     ColorRGB finalColor{colors::Black};
                     
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2554,7 +2554,7 @@ namespace dae
                             const Vector3 normal{(weightedV0Normal + weightedV1Normal + weightedV2Normal).Normalized()};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2621,7 +2621,7 @@ namespace dae
                 {
                     ColorRGB finalColor{colors::Black};
                     
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2679,7 +2679,7 @@ namespace dae
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2755,7 +2755,7 @@ namespace dae
                 {
                     ColorRGB finalColor{colors::Black};
                     
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2813,7 +2813,7 @@ namespace dae
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -2892,7 +2892,7 @@ namespace dae
                 {
                     ColorRGB finalColor{colors::Black};
                     
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -2950,7 +2950,7 @@ namespace dae
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
@@ -3034,7 +3034,7 @@ namespace dae
                 {
                     ColorRGB finalColor{colors::Black};
                     
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -3092,7 +3092,7 @@ namespace dae
                             const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
                             
                             // Color
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 // std::cout << interpolatedZBuffer << '\n';
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.999f, 1.0f, 0.0f, 1.0f)};

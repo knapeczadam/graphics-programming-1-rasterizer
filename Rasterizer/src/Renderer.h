@@ -146,8 +146,8 @@ namespace dae
 
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer {};
-        bool m_VisualizeDepthBuffer {false};
-        bool m_VisualizeBoundingBox {false};
+
+        // Debug
         bool m_UseNormalMap         {false};
         bool m_Rotate               {false};
 
