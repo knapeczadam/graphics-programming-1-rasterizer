@@ -46,6 +46,12 @@ namespace dae
 
     void Camera::Scroll(SDL_MouseWheelEvent wheel)
     {
+        // Check whether the mouse is over the ImGui window
+        if (ImGui::GetIO().WantCaptureMouse)
+        {
+            return;
+        }
+        
         if (wheel.y > 0) // scroll up
         {
             origin += forward * m_ScrollSpeed;
