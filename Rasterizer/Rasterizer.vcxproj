@@ -165,7 +165,7 @@ xcopy "$(ProjectDir)Resources\" "$(OutDir)\Resources\" /y /D</Command>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Macros.h" />
+    <ClInclude Include="src\SceneSelector.h" />
     <ClInclude Include="src\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
