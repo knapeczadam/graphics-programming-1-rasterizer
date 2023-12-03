@@ -6,6 +6,7 @@
 // Standard includes
 #include <cstdint>
 #include <vector>
+#include <string>
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -30,8 +31,10 @@ namespace dae
             TriangleStrip
         };
         
-        enum class LightingMode
+        enum class ShadingMode
         {
+            BoundingBox = -2,
+            DepthBuffer,
             ObservedArea, // Lambert Cosine Law
             Diffuse,
             Specular, 
@@ -83,6 +86,7 @@ namespace dae
         // Helper functions
         int GetBufferIndex(int x, int y) const;
         void UpdateColor(ColorRGB& finalColor, int px, int py) const;
+        void UpdateCurrentShadingModeText();
 
         // Shading
         void ShadePixelV0(const Vertex_Out& vertex, ColorRGB& finalColor) const;
@@ -146,7 +150,7 @@ namespace dae
         std::vector<float> m_DepthBuffer {};
         bool m_VisualizeDepthBuffer {false};
         bool m_VisualizeBoundingBox {false};
-        bool m_VisualizeNormals     {false};
+        bool m_UseNormalMap         {false};
         bool m_Rotate               {false};
 
         Camera  m_Camera           {};
@@ -159,11 +163,13 @@ namespace dae
 
         int m_Width{};
         int m_Height{};
-        
-        LightingMode m_CurrentLightingMode {LightingMode::Combined};
+
+        ShadingMode m_PreviousShadingMode      {ShadingMode::Combined};
+        ShadingMode m_CurrentShadingMode       {ShadingMode::Combined};
+        std::string m_CurrentShadingModeAsText {"COMBINED"};
 
         float m_ambient        {0.025f};
-        float m_lightDir[3]    {0.577, -0.577f, 0.577};      
+        float m_lightDir[3]    {0.577f, -0.577f, 0.577f};      
         float m_lightIntensity {7.0f};
         float m_kd             {1.0f}; // Diffuse reflection coefficient
         float m_shininess      {25.0f};

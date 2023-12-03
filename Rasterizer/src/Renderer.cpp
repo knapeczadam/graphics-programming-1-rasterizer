@@ -368,6 +368,7 @@ namespace dae
         UpdateWindow();
 #elif TODO_6
         Render_W4_TODO_6();
+        UpdateCurrentShadingModeText();
         CreateUI();
         UpdateRenderer();
 #endif
@@ -405,11 +406,29 @@ namespace dae
     {
         // ImGui Window
         ImGui::Begin("Properties");
+        ImGui::Text("Current mode: %s", m_CurrentShadingModeAsText.c_str());
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+        
+        ImGui::Checkbox("Normal map", &m_UseNormalMap);
+        ImGui::Checkbox("Rotate", &m_Rotate);
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+        
         ImGui::SliderFloat("Ambient", &m_ambient, 0.0f, 1.0f);
         ImGui::SliderFloat3("Light direction", m_lightDir, -1.0f, 1.0f);
         ImGui::SliderFloat("Light intensity", &m_lightIntensity, 0.0f, 20.0f);
         ImGui::SliderFloat("KD (Diffuse reflection coefficient)", &m_kd, 0.0f, 20.0f);
         ImGui::SliderFloat("Shininess", &m_shininess, 0.0f, 100.0f);
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+        
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
         ImGui::End();
@@ -419,17 +438,33 @@ namespace dae
 #pragma region Setters
     void Renderer::ToggleDepthBufferVisibility()
     {
-        m_VisualizeDepthBuffer = not m_VisualizeDepthBuffer;
+        if (m_CurrentShadingMode != ShadingMode::DepthBuffer)
+        {
+            m_PreviousShadingMode = m_CurrentShadingMode;
+            m_CurrentShadingMode = ShadingMode::DepthBuffer;
+        }
+        else
+        {
+            m_CurrentShadingMode = m_PreviousShadingMode;
+        }
     }
 
     void Renderer::ToggleBoundingBoxVisibility()
     {
-        m_VisualizeBoundingBox = not m_VisualizeBoundingBox;
+        if (m_CurrentShadingMode != ShadingMode::BoundingBox)
+        {
+            m_PreviousShadingMode = m_CurrentShadingMode;
+            m_CurrentShadingMode = ShadingMode::BoundingBox;
+        }
+        else
+        {
+            m_CurrentShadingMode = m_PreviousShadingMode;
+        }
     }
 
     void Renderer::ToggleNormalVisibility()
     {
-        m_VisualizeNormals = not m_VisualizeNormals;
+        m_UseNormalMap = not m_UseNormalMap;
     }
 
     void Renderer::ToggleRotation()
@@ -439,24 +474,8 @@ namespace dae
 
     void Renderer::CycleShadingMode()
     {
-        m_CurrentLightingMode = static_cast<LightingMode>((static_cast<int>(m_CurrentLightingMode) + 1) % (static_cast<
-            int>(LightingMode::Combined) + 1));
-        std::cout << "LIGHTING MODE: ";
-        switch (m_CurrentLightingMode)
-        {
-        case LightingMode::ObservedArea:
-            std::cout << "OBSERVED_AREA" << std::endl;
-            break;
-        case LightingMode::Diffuse:
-            std::cout << "DIFFUSE" << std::endl;
-            break;
-        case LightingMode::Specular:
-            std::cout << "SPECULAR" << std::endl;
-            break;
-        case LightingMode::Combined:
-            std::cout << "COMBINED" << std::endl;
-            break;
-        }
+        m_CurrentShadingMode = static_cast<ShadingMode>((static_cast<int>(m_CurrentShadingMode) + 1) % (static_cast<
+            int>(ShadingMode::Combined) + 1));
     }
 #pragma endregion
 
@@ -878,7 +897,32 @@ namespace dae
                                                               static_cast<uint8_t>(finalColor.g * 255),
                                                               static_cast<uint8_t>(finalColor.b * 255));
     }
-    
+
+    void Renderer::UpdateCurrentShadingModeText()
+    {
+        switch (m_CurrentShadingMode)
+        {
+        case ShadingMode::BoundingBox:
+            m_CurrentShadingModeAsText = "BOUNDING BOX";
+            break;
+        case ShadingMode::DepthBuffer:
+            m_CurrentShadingModeAsText = "DEPTH BUFFER";
+            break;
+        case ShadingMode::ObservedArea:
+            m_CurrentShadingModeAsText = "OBSERVED AREA";
+            break;
+        case ShadingMode::Diffuse:
+            m_CurrentShadingModeAsText = "DIFFUSE";
+            break;
+        case ShadingMode::Specular:
+            m_CurrentShadingModeAsText = "SPECULAR";
+            break;
+        case ShadingMode::Combined:
+            m_CurrentShadingModeAsText = "COMBINED";
+            break;
+        }
+    }
+
     bool Renderer::SaveBufferToImage() const
     {
         return SDL_SaveBMP(m_pBackBuffer, "Rasterizer_ColorBuffer.bmp");
@@ -963,18 +1007,18 @@ namespace dae
         const float cosAlpha{std::max(0.0f, Vector3::Dot(reflectedLight, vertex.viewDirection))};
         const ColorRGB phong{specularColor * std::pow(cosAlpha, glossiness * m_shininess)};
 
-        switch (m_CurrentLightingMode)
+        switch (m_CurrentShadingMode)
         {
-            case LightingMode::ObservedArea:
+            case ShadingMode::ObservedArea:
                 finalColor = observedArea;
                 break;
-            case LightingMode::Diffuse:
+            case ShadingMode::Diffuse:
                 finalColor = lambert * observedArea;
                 break;
-            case LightingMode::Specular:
+            case ShadingMode::Specular:
                 finalColor = phong * observedArea;
                 break;
-        case LightingMode::Combined:
+        case ShadingMode::Combined:
                 finalColor = LightUtils::GetRadiance(light) * (m_ambient + lambert + phong) * observedArea;
                 break;
         }
@@ -3114,7 +3158,7 @@ namespace dae
                 {
                     ColorRGB finalColor{colors::Black};
                     
-                    if (m_VisualizeBoundingBox)
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
                         UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
@@ -3141,7 +3185,7 @@ namespace dae
                         {
                             m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
                             
-                            if (m_VisualizeDepthBuffer)
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.97f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = remappedZBuffer;
@@ -3197,7 +3241,7 @@ namespace dae
                             
                             // --- PIXEL VERTEX ---
                             Vertex_Out pixelVertex;
-                            pixelVertex.normal = m_VisualizeNormals ? normalMap : normal;
+                            pixelVertex.normal = m_UseNormalMap ? normalMap : normal;
                             pixelVertex.viewDirection = (v0.viewDirection * weights[0] + v1.viewDirection * weights[1] + v2.viewDirection * weights[2]).Normalized();
 
                             // Final shading
