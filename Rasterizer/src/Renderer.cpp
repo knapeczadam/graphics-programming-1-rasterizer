@@ -448,6 +448,20 @@ namespace dae
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
+
+        if (ImGui::Button("Take screenshot"))
+        {
+            TakeScreenshot();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Start benchmark"))
+        {
+            StartBenchmark();
+        }
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
         
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);

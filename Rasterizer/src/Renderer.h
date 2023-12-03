@@ -63,6 +63,8 @@ namespace dae
     
         bool SaveBufferToImage() const;
         inline Camera& GetCamera() { return m_Camera; }
+        inline bool IsBenchmarking() const { return m_StartBenchmark; }
+        inline bool IsTakingScreenshot() const { return m_TakeScreenshot; }
 
         // Setters
         void ToggleDepthBufferVisibility();
@@ -70,6 +72,10 @@ namespace dae
         void ToggleNormalVisibility();
         void ToggleRotation();
         void CycleShadingMode();
+        inline void StartBenchmark() { m_StartBenchmark = true; }
+        inline void StopBenchmark() { m_StartBenchmark = false; }
+        inline void TakeScreenshot() { m_TakeScreenshot = true; }
+        inline void StopTakingScreenshot() { m_TakeScreenshot = false; }
 
     private:
         // Initialization
@@ -150,6 +156,8 @@ namespace dae
         // Debug
         bool m_UseNormalMap         {false};
         bool m_Rotate               {false};
+        bool m_TakeScreenshot       {false};
+        bool m_StartBenchmark       {false};
 
         Camera  m_Camera           {};
         float   m_RotationAngleDeg {5.0f};

@@ -83,7 +83,7 @@ int main(int argc, char* args[])
 
     float printTimer     = 0.f;
     bool  isLooping      = true;
-    bool  takeScreenshot = false;
+    
     while (isLooping)
     {
         //--------- Get input events ---------
@@ -129,7 +129,7 @@ int main(int argc, char* args[])
                     rendererPtr->GetCamera().DecreaseFOV();
                     break;
                 case SDL_SCANCODE_X:
-                    takeScreenshot = true;
+                    rendererPtr->TakeScreenshot();
                     break;
                 }
                 break;
@@ -137,6 +137,12 @@ int main(int argc, char* args[])
                 rendererPtr->GetCamera().Scroll(e.wheel);
                 break;
             }
+        }
+
+        if (rendererPtr->IsBenchmarking())
+        {
+            timerPtr->StartBenchmark();
+            rendererPtr->StopBenchmark();
         }
 
         // Start the Dear ImGui frame
@@ -160,13 +166,13 @@ int main(int argc, char* args[])
         }
 
         //Save screenshot after full render
-        if (takeScreenshot)
+        if (rendererPtr->IsTakingScreenshot())
         {
             if (!rendererPtr->SaveBufferToImage())
                 std::cout << "Screenshot saved!" << std::endl;
             else
                 std::cout << "Something went wrong. Screenshot not saved!" << std::endl;
-            takeScreenshot = false;
+            rendererPtr->StopTakingScreenshot();
         }
     }
     timerPtr->Stop();
