@@ -431,6 +431,12 @@ namespace dae
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
+
+        ImGui::ColorEdit3("Background color", m_BackgroundColor);
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
         
         ImGui::Checkbox("Normal map", &m_UseNormalMap);
         ImGui::Checkbox("Rotate", &m_Rotate);
@@ -3150,10 +3156,17 @@ namespace dae
 
     void Renderer::Render_W4_TODO_6()
     {
+        // Clear depth buffer
         std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
 
-        SDL_FillRect(m_BackBufferPtr, nullptr, SDL_MapRGB(m_BackBufferPtr->format, 100, 100, 100));
+        // Background color
+        Uint8 r, g, b;
+        r = static_cast<Uint8>(m_BackgroundColor[0] * 255.0f);
+        g = static_cast<Uint8>(m_BackgroundColor[1] * 255.0f);
+        b = static_cast<Uint8>(m_BackgroundColor[2] * 255.0f);
+        SDL_FillRect(m_BackBufferPtr, nullptr, SDL_MapRGB(m_BackBufferPtr->format, r, g, b));
 
+        // Transform vertices from world to screen space
         TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
