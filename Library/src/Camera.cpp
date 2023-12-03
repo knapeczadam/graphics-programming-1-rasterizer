@@ -1,25 +1,24 @@
 #include "Camera.h"
 
-#include <iostream>
 
 #include "ImGui/imgui.h"
 
 namespace dae
 {
     Camera::Camera(const Vector3& _origin, float _fovAngle)
-        : origin{_origin}
-          , fovAngle{_fovAngle}
+        : m_Origin{_origin}
+          , m_FOVAngle{_fovAngle}
     {
     }
 
     void Camera::Initialize(float _fovAngle, Vector3 _origin, float _nearPlane, float _farPlane)
     {
-        fovAngle = _fovAngle;
-        fov = CalculateFOV(fovAngle);
+        m_FOVAngle = _fovAngle;
+        m_FOV = CalculateFOV(m_FOVAngle);
 
-        origin = _origin;
-        nearPlane = _nearPlane;
-        farPlane = _farPlane;
+        m_Origin = _origin;
+        m_NearPlane = _nearPlane;
+        m_FarPlane = _farPlane;
     }
 
     void Camera::Update(Timer* pTimer)
@@ -41,7 +40,7 @@ namespace dae
 
     float Camera::GetFOV() const
     {
-        return CalculateFOV(fovAngle);
+        return CalculateFOV(m_FOVAngle);
     }
 
     void Camera::Scroll(SDL_MouseWheelEvent wheel)
@@ -54,32 +53,34 @@ namespace dae
         
         if (wheel.y > 0) // scroll up
         {
-            origin += forward * m_ScrollSpeed;
+            m_Origin += m_Forward * m_ScrollSpeed;
         }
         else if (wheel.y < 0) // scroll down
         {
-            origin -= forward * m_ScrollSpeed;
+            m_Origin -= m_Forward * m_ScrollSpeed;
         }
     }
 
     void Camera::IncreaseFOV()
     {
-        ++fovAngle;
+        ++m_FOVAngle;
+        CalculateFOV();
     }
 
     void Camera::DecreaseFOV()
     {
-        --fovAngle;
+        --m_FOVAngle;
+        CalculateFOV();
     }
 
     void Camera::SetTotalPitch(float pitch)
     {
-        totalPitch = pitch;
+        m_TotalPitch = pitch;
     }
 
     void Camera::SetTotalYaw(float yaw)
     {
-        totalYaw = yaw;
+        m_TotalYaw = yaw;
     }
 
     float Camera::CalculateFOV(float angle) const
@@ -88,23 +89,28 @@ namespace dae
         return std::tanf(halfAlpha);
     }
 
+    void Camera::CalculateFOV()
+    {
+        m_FOV = CalculateFOV(m_FOVAngle);
+    }
+
     void Camera::MoveCamera(const uint8_t* pKeyboardState, float deltaTime)
     {
         if (pKeyboardState[SDL_SCANCODE_A])
         {
-            origin -= right * deltaTime * speed;
+            m_Origin -= m_Right * deltaTime * m_Speed;
         }
         else if (pKeyboardState[SDL_SCANCODE_D])
         {
-            origin += right * deltaTime * speed;
+            m_Origin += m_Right * deltaTime * m_Speed;
         }
         if (pKeyboardState[SDL_SCANCODE_W])
         {
-            origin += forward * deltaTime * speed;
+            m_Origin += m_Forward * deltaTime * m_Speed;
         }
         else if (pKeyboardState[SDL_SCANCODE_S])
         {
-            origin -= forward * deltaTime * speed;
+            m_Origin -= m_Forward * deltaTime * m_Speed;
         }
     }
 
@@ -118,28 +124,32 @@ namespace dae
         
         int mouseX{}, mouseY{};
         const int threshold{1};
+        
         const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
+        
         mouseX = mouseX > threshold ? 1 : mouseX < -threshold ? -1 : 0;
         mouseY = mouseY > threshold ? 1 : mouseY < -threshold ? -1 : 0;
-        const bool leftMouseButtonDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+        
+        const bool leftMouseButtonDown  = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
         const bool rightMouseButtonDown = mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
+        
         if (leftMouseButtonDown and rightMouseButtonDown)
         {
-            origin += up * static_cast<float>(mouseY * -1) * deltaTime * speed;
+            m_Origin += m_Up * static_cast<float>(mouseY * -1) * deltaTime * m_Speed;
         }
         else if (leftMouseButtonDown)
         {
-            origin += forward * static_cast<float>(mouseY * -1) * deltaTime * speed;
-            totalYaw += static_cast<float>(mouseX) * rotationSpeed * deltaTime;
+            m_Origin += m_Forward * static_cast<float>(mouseY * -1) * deltaTime * m_Speed;
+            m_TotalYaw += static_cast<float>(mouseX) * m_RotationSpeed * deltaTime;
         }
         else if (rightMouseButtonDown)
         {
-            totalYaw += static_cast<float>(mouseX) * rotationSpeed * deltaTime;
-            totalPitch += static_cast<float>(mouseY * -1) * rotationSpeed * deltaTime;
+            m_TotalYaw += static_cast<float>(mouseX) * m_RotationSpeed * deltaTime;
+            m_TotalPitch += static_cast<float>(mouseY * -1) * m_RotationSpeed * deltaTime;
         }
         if (mouseX or mouseY)
         {
-            forward = Matrix::CreateRotation(totalPitch * TO_RADIANS, totalYaw * TO_RADIANS, 0.0f).TransformVector(
+            m_Forward = Matrix::CreateRotation(m_TotalPitch * TO_RADIANS, m_TotalYaw * TO_RADIANS, 0.0f).TransformVector(
                 Vector3::UnitZ);
             // TODO: verify if this is needed
             //forward.Normalize();
@@ -148,21 +158,13 @@ namespace dae
 
     void Camera::CalculateViewMatrix()
     {
-        //ONB => invViewMatrix
-        //Inverse(ONB) => ViewMatrix
-        
-        viewMatrix = Matrix::CreateLookAtLH(origin, forward, up, right);
-        invViewMatrix = Matrix::Inverse(viewMatrix);
-
-        //ViewMatrix => Matrix::CreateLookAtLH(...) [not implemented yet]
-        //DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatlh
+        m_ViewMatrix        = Matrix::CreateLookAtLH(m_Origin, m_Forward, m_Up, m_Right);
+        m_InverseViewMatrix = Matrix::Inverse(m_ViewMatrix);
     }
 
     void Camera::CalculateProjectionMatrix()
     {
-        //ProjectionMatrix => Matrix::CreatePerspectiveFovLH(...) [not implemented yet]
-        //DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
-        projectionMatrix = Matrix::CreatePerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
+        m_ProjectionMatrix = Matrix::CreatePerspectiveFovLH(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
     }
 
 }

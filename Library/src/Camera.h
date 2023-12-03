@@ -1,10 +1,6 @@
 #pragma once
-#include <cassert>
 #include <SDL_events.h>
-#include <SDL_keyboard.h>
-#include <SDL_mouse.h>
 
-#include "DataTypes.h"
 #include "Maths.h"
 #include "Timer.h"
 
@@ -28,37 +24,38 @@ namespace dae
         
         void CalculateViewMatrix();
         void CalculateProjectionMatrix();
-        inline float GetAspectRatio() const { return aspectRatio; }
-        inline void SetAspectRatio(float aspect_ratio) { aspectRatio = aspect_ratio; }
-        inline Vector3 GetPosition() const { return origin; }
+        inline float GetAspectRatio() const { return m_AspectRatio; }
+        inline void SetAspectRatio(float aspect_ratio) { m_AspectRatio = aspect_ratio; }
+        inline Vector3 GetPosition() const { return m_Origin; }
 
     private:
         float CalculateFOV(float angle) const;
+        void CalculateFOV();
         void MoveCamera(const uint8_t* pKeyboardState, float deltaTime);
         void RotateCamera(float deltaTime);
 
     public:
-        Matrix invViewMatrix    {};
-        Matrix viewMatrix       {};
-        Matrix projectionMatrix {};
+        Matrix m_InverseViewMatrix    {};
+        Matrix m_ViewMatrix       {};
+        Matrix m_ProjectionMatrix {};
 
     private:
-        Vector3 origin      {};
-        float   fovAngle    {0.0f};
-        float   fov         {0.0f};
-        float   aspectRatio {0.0f};
-        float   nearPlane   {1.0f};
-        float   farPlane    {1000.0f};
+        Vector3 m_Origin      {};
+        float   m_FOVAngle    {0.0f};
+        float   m_FOV         {0.0f};
+        float   m_AspectRatio {0.0f};
+        float   m_NearPlane   {0.0f};
+        float   m_FarPlane    {0.0f};
 
-        Vector3 forward {Vector3::UnitZ};
-        Vector3 up      {Vector3::UnitY};
-        Vector3 right   {Vector3::UnitX};
+        Vector3 m_Right   {Vector3::UnitX};
+        Vector3 m_Up      {Vector3::UnitY};
+        Vector3 m_Forward {Vector3::UnitZ};
 
-        float  totalPitch    {0.0f};
-        float  totalYaw      {0.0f};
-        Matrix cameraToWorld {};
-        float  speed         {10.0f};
-        float  rotationSpeed {100.0f};
-        float  m_ScrollSpeed {0.5f};
+        float  m_TotalPitch    {0.0f};
+        float  m_TotalYaw      {0.0f};
+        Matrix m_CameraToWorld {};
+        float  m_Speed         {20.0f};
+        float  m_RotationSpeed {100.0f};
+        float  m_ScrollSpeed   {5.0f};
     };
 }

@@ -7,17 +7,17 @@
 namespace dae
 {
     Texture::Texture(SDL_Surface* pSurface) :
-        m_pSurface{pSurface},
-        m_pSurfacePixels{(uint32_t*)pSurface->pixels}
+        m_SurfacePtr{pSurface},
+        m_SurfacePixelsPtr{(uint32_t*)pSurface->pixels}
     {
     }
 
     Texture::~Texture()
     {
-        if (m_pSurface)
+        if (m_SurfacePtr)
         {
-            SDL_FreeSurface(m_pSurface);
-            m_pSurface = nullptr;
+            SDL_FreeSurface(m_SurfacePtr);
+            m_SurfacePtr = nullptr;
         }
     }
 

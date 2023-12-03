@@ -17,6 +17,7 @@ namespace dae
     // Forward Declarations
     struct Mesh;
     struct Vertex;
+    struct Vertex_Out;
     
     class Texture;
     class Timer;
@@ -128,23 +129,20 @@ namespace dae
         void Render_W4_TODO_6();
 
     private:
-        SDL_Window*  m_pWindow           {nullptr};
-        SDL_Surface* m_pFrontBuffer      {nullptr};
-        SDL_Surface* m_pBackBuffer       {nullptr};
-        SDL_Renderer* m_pRenderer        {nullptr};
-        uint32_t*    m_pBackBufferPixels {nullptr};
+        SDL_Window*   m_WindowPtr           {nullptr};
+        SDL_Surface*  m_FrontBufferPtr      {nullptr};
+        SDL_Surface*  m_BackBufferPtr       {nullptr};
+        SDL_Renderer* m_RendererPtr         {nullptr};
+        uint32_t*     m_BackBufferPixelsPtr {nullptr};
 
         // General texture
-        Texture* m_pTexture           {nullptr};
-
-        // Material
-        Material* m_pMaterial         {nullptr};
+        Texture* m_TexturePtr           {nullptr};
 
         // Vehicle
-        Texture* m_pTextureDiffuse    {nullptr};
-        Texture* m_pTextureGlossiness {nullptr};
-        Texture* m_pTextureNormal     {nullptr};
-        Texture* m_pTextureSpecular   {nullptr};
+        Texture* m_DiffuseTexturePtr    {nullptr};
+        Texture* m_GlossinessTexturePtr {nullptr};
+        Texture* m_NormalTexturePtr     {nullptr};
+        Texture* m_SpecularTexturePtr   {nullptr};
 
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer {};
@@ -168,10 +166,10 @@ namespace dae
         ShadingMode m_CurrentShadingMode       {ShadingMode::Combined};
         std::string m_CurrentShadingModeAsText {"COMBINED"};
 
-        float m_ambient        {0.025f};
-        float m_lightDir[3]    {0.577f, -0.577f, 0.577f};      
-        float m_lightIntensity {7.0f};
-        float m_kd             {1.0f}; // Diffuse reflection coefficient
-        float m_shininess      {25.0f};
+        float m_Ambient           {0.025f};
+        float m_LightDirection[3] {0.577f,  -0.577f, 0.577f}; 
+        float m_LightIntensity    {7.0f};
+        float m_KD                {1.0f};   // Diffuse  reflection coefficient
+        float m_Shininess         {25.0f};
     };
 }
