@@ -39,7 +39,9 @@ namespace dae
             ObservedArea, // Lambert Cosine Law
             Diffuse,
             Specular, 
-            Combined // (Diffuse + Specular) * ObservedArea  
+            Combined, // (Diffuse + Specular) * ObservedArea
+
+            COUNT = 4
         };
 
     public:

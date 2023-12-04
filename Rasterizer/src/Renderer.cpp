@@ -536,7 +536,7 @@ namespace dae
     void Renderer::CycleShadingMode()
     {
         m_CurrentShadingMode = static_cast<ShadingMode>(
-            (static_cast<int>(m_CurrentShadingMode) + 1) % (static_cast<int>(ShadingMode::Combined) + 1)
+            (static_cast<int>(m_CurrentShadingMode) + 1) % static_cast<int>(ShadingMode::COUNT)
             );
     }
 #pragma endregion
