@@ -58,8 +58,9 @@ namespace dae
         void Render();
 
         bool SaveBufferToImage() const;
-        inline Camera& GetCamera() { return m_Camera; }
-        inline bool IsBenchmarking() const { return m_StartBenchmark; }
+        
+        inline Camera& GetCamera()             { return m_Camera; }
+        inline bool IsBenchmarking()     const { return m_StartBenchmark; }
         inline bool IsTakingScreenshot() const { return m_TakeScreenshot; }
 
         // Setters
@@ -68,9 +69,10 @@ namespace dae
         void ToggleNormalVisibility();
         void ToggleRotation();
         void CycleShadingMode();
-        inline void StartBenchmark() { m_StartBenchmark = true; }
-        inline void StopBenchmark() { m_StartBenchmark = false; }
-        inline void TakeScreenshot() { m_TakeScreenshot = true; }
+        
+        inline void StartBenchmark()       { m_StartBenchmark = true;  }
+        inline void StopBenchmark()        { m_StartBenchmark = false; }
+        inline void TakeScreenshot()       { m_TakeScreenshot = true;  }
         inline void StopTakingScreenshot() { m_TakeScreenshot = false; }
 
     private:
@@ -87,8 +89,8 @@ namespace dae
         void TransformFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
         
         // Render helpers
-        inline void SwapBuffers() const;
-        inline void UpdateWindow() const;
+        inline void SwapBuffers()    const;
+        inline void UpdateWindow()   const;
         inline void UpdateRenderer() const;
         inline void CreateUI();
 
@@ -145,7 +147,7 @@ namespace dae
         uint32_t*     m_BackBufferPixelsPtr {nullptr};
 
         // General texture
-        Texture* m_TexturePtr           {nullptr};
+        Texture* m_TexturePtr {nullptr};
 
         // Vehicle
         Texture* m_DiffuseTexturePtr    {nullptr};
@@ -182,8 +184,8 @@ namespace dae
         Matrix  m_Transform        {};
         Vector3 m_Translation      {0.0f,  0.0f, 50.0f};
 
-        int m_Width{};
-        int m_Height{};
+        int m_Width  {0};
+        int m_Height {0};
 
         ShadingMode m_PreviousShadingMode      {ShadingMode::Combined};
         ShadingMode m_CurrentShadingMode       {ShadingMode::Combined};
