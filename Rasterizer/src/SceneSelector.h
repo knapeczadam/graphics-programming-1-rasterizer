@@ -15,7 +15,8 @@ namespace dae
     #define TODO_3 0
     #define TODO_4 0
     #define TODO_5 0
-    #define TODO_6 1 
+    #define TODO_6 0
+    #define TODO_7 1
 }
 
 // --- WEEK 1 ---
@@ -56,5 +57,5 @@ namespace dae
  * TODO_4: Vehicle - Specular with sampled normals + observed area
  * TODO_5: Vehicle - Combined
  * TODO_6: Vehicle - Final - Structured, unoptimized, readable
- * TODO_7: Vehicle - Final - Optimized, unreadable
+ * TODO_7: Vehicle - Final - Inlined, unreadable
  */

@@ -55,12 +55,6 @@ namespace dae
         void Update(Timer* pTimer);
         void Render();
 
-        // Render helpers
-        void SwapBuffers() const;
-        void UpdateWindow() const;
-        void UpdateRenderer() const;
-        void CreateUI();
-    
         bool SaveBufferToImage() const;
         inline Camera& GetCamera() { return m_Camera; }
         inline bool IsBenchmarking() const { return m_StartBenchmark; }
@@ -89,6 +83,12 @@ namespace dae
         void TransformFromWorldToScreenV3(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void TransformFromWorldToScreenV4(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void TransformFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
+        
+        // Render helpers
+        inline void SwapBuffers() const;
+        inline void UpdateWindow() const;
+        inline void UpdateRenderer() const;
+        inline void CreateUI();
 
         // Helper functions
         int GetBufferIndex(int x, int y) const;
@@ -133,6 +133,7 @@ namespace dae
         void Render_W4_TODO_4();
         void Render_W4_TODO_5();
         void Render_W4_TODO_6();
+        inline void Render_W4_TODO_7();
 
     private:
         SDL_Window*   m_WindowPtr           {nullptr};
@@ -166,8 +167,8 @@ namespace dae
         std::vector<float> m_DepthBuffer {};
 
         // Debug
-        bool m_UseNormalMap         {false};
-        bool m_Rotate               {false};
+        bool m_UseNormalMap         {true};
+        bool m_Rotate               {true};
         bool m_TakeScreenshot       {false};
         bool m_StartBenchmark       {false};
 

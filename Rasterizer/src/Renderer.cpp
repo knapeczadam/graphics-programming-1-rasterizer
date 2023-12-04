@@ -286,6 +286,22 @@ namespace dae
             meshes_world_list_transformed[0].vertices[idx].normal = combined.TransformVector(meshes_world_list[0].vertices[idx].normal);
             meshes_world_list_transformed[0].vertices[idx].tangent = combined.TransformVector(meshes_world_list[0].vertices[idx].tangent);
         }
+#elif TODO_7
+        const float yaw{m_RotationAngleRad * m_AccTime};
+        const auto rotation{Matrix::CreateRotationY(yaw)};
+        const auto combined = rotation * m_Transform;
+        
+        if (m_Rotate)
+        {
+            m_AccTime += pTimer->GetElapsed();
+        }
+        
+        for (size_t idx{0}; idx < meshes_world_list[0].vertices.size(); ++idx)
+        {
+            meshes_world_list_transformed[0].vertices[idx].position = combined.TransformPoint(meshes_world_list[0].vertices[idx].position);
+            meshes_world_list_transformed[0].vertices[idx].normal = combined.TransformVector(meshes_world_list[0].vertices[idx].normal);
+            meshes_world_list_transformed[0].vertices[idx].tangent = combined.TransformVector(meshes_world_list[0].vertices[idx].tangent);
+        }
 #endif
 #endif
     }
@@ -384,6 +400,11 @@ namespace dae
         UpdateWindow();
 #elif TODO_6
         Render_W4_TODO_6();
+        UpdateCurrentShadingModeText();
+        CreateUI();
+        UpdateRenderer();
+#elif TODO_7
+        Render_W4_TODO_7();
         UpdateCurrentShadingModeText();
         CreateUI();
         UpdateRenderer();
@@ -588,7 +609,8 @@ namespace dae
 #elif TODO_5
         m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #elif TODO_6
-        // m_Camera.Initialize(45.0f, {0.0f, 5.0f, 64.0f}, 0.1f, 100.0f);
+        m_Camera.Initialize(45.0f, {0.0f, 0.0f, 0.0f} );
+#elif TODO_7
         m_Camera.Initialize(45.0f, {0.0f, 0.0f, 0.0f} );
 #endif
 #endif
@@ -682,6 +704,10 @@ namespace dae
         Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
+#elif TODO_7
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        meshes_world_list_transformed = meshes_world_list;
+        vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #endif
 #endif
     }
@@ -740,6 +766,11 @@ namespace dae
         m_SpecularTexturePtr   = Texture::LoadFromFile(m_SpecularTexturePath);
         m_GlossinessTexturePtr = Texture::LoadFromFile(m_GlossinessTexturePath);
 #elif TODO_6
+        m_DiffuseTexturePtr    = Texture::LoadFromFile(m_DiffuseTexturePath);
+        m_NormalTexturePtr     = Texture::LoadFromFile(m_NormalTexturePath);
+        m_SpecularTexturePtr   = Texture::LoadFromFile(m_SpecularTexturePath);
+        m_GlossinessTexturePtr = Texture::LoadFromFile(m_GlossinessTexturePath);
+#elif TODO_7
         m_DiffuseTexturePtr    = Texture::LoadFromFile(m_DiffuseTexturePath);
         m_NormalTexturePtr     = Texture::LoadFromFile(m_NormalTexturePath);
         m_SpecularTexturePtr   = Texture::LoadFromFile(m_SpecularTexturePath);
@@ -3275,6 +3306,268 @@ namespace dae
                             ShadePixelV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
                             
                             UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    inline void Renderer::Render_W4_TODO_7()
+    {
+        // Clear depth buffer
+        std::fill_n(m_DepthBuffer.begin(), m_DepthBuffer.size(), std::numeric_limits<float>::max());
+
+        // Background color
+        Uint8 r, g, b;
+        r = static_cast<Uint8>(m_BackgroundColor[0] * 255.0f);
+        g = static_cast<Uint8>(m_BackgroundColor[1] * 255.0f);
+        b = static_cast<Uint8>(m_BackgroundColor[2] * 255.0f);
+        SDL_FillRect(m_BackBufferPtr, nullptr, SDL_MapRGB(m_BackBufferPtr->format, r, g, b));
+
+        // Transform vertices from world to screen space
+        const std::vector<Vertex>& vertices_in = meshes_world_list_transformed[0].vertices;
+        std::vector<Vertex_Out>& vertices_out = vertices_ss_out;
+        for (size_t i{0}; i < vertices_in.size(); ++i)
+        {
+            const Vertex& vertex_in = vertices_in[i];
+            Vertex_Out& vertex_out = vertices_out[i];
+
+            // MODEL/OBJECT
+            const Vector4 positionIn{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
+            // WORLD -> VIEW -> PROJECTION
+            const Vector4 projectedPos = (m_Camera.m_InverseViewMatrix * m_Camera.m_ProjectionMatrix).TransformPoint(positionIn);
+            // DEPTH
+            assert(projectedPos.w != 0.0f and "Renderer::TransformFromWorldToScreenV4: Division by zero");
+            vertex_out.position.w = 1.0f / projectedPos.w;
+            // NDC
+            vertex_out.position.x = projectedPos.x * vertex_out.position.w;
+            vertex_out.position.y = projectedPos.y * vertex_out.position.w;
+            vertex_out.position.z = projectedPos.z * vertex_out.position.w;
+            vertex_out.position.z = 1.0f / vertex_out.position.z;
+            // SCREEN
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+            // UV
+            vertex_out.uv = vertex_in.uv;
+            // WORLD NORMAL
+            vertex_out.normal = vertex_in.normal;
+            // WORLD TANGENT
+            vertex_out.tangent = vertex_in.tangent;
+            // VIEW-DIRECTION
+            vertex_out.viewDirection = vertex_in.position - m_Camera.GetPosition();
+        }
+
+        const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
+        for (size_t idx{0}; idx < indices.size(); idx+=3)
+        {
+            // Triangle's indices
+            const uint32_t idx0{indices[idx]};
+            const uint32_t idx1{indices[idx + 1]};
+            const uint32_t idx2{indices[idx + 2]};
+
+            // Triangle's vertices
+            const Vertex_Out& vert0{vertices_ss_out[idx0]};
+            const Vertex_Out& vert1{vertices_ss_out[idx1]};
+            const Vertex_Out& vert2{vertices_ss_out[idx2]};
+
+            // Triangle's vertices' positions
+            const Vector4& pos0{vert0.position};
+            const Vector4& pos1{vert1.position};
+            const Vector4& pos2{vert2.position};
+
+            // Create bounding box + stretch by 1 pixel
+            constexpr int offset{1};
+            const int minX {static_cast<int>(std::min(pos0.x, std::min(pos1.x, pos2.x))) - offset};
+            const int maxX {static_cast<int>(std::max(pos0.x, std::max(pos1.x, pos2.x))) + offset};
+            const int minY {static_cast<int>(std::min(pos0.y, std::min(pos1.y, pos2.y))) - offset};
+            const int maxY {static_cast<int>(std::max(pos0.y, std::max(pos1.y, pos2.y))) + offset};
+
+            // Clamp bounding box
+            if (minX < 0)         continue;
+            if (maxX >= m_Width)  continue;
+            if (minY < 0)         continue;
+            if (maxY >= m_Height) continue;
+
+            for (int px{minX}; px <= maxX; ++px)
+            {
+                for (int py{minY}; py <= maxY; ++py)
+                {
+                    ColorRGB finalColor{colors::Black};
+                    
+                    if (m_CurrentShadingMode == ShadingMode::BoundingBox)
+                    {
+                        finalColor = colors::White;
+                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        continue;
+                    }
+                    
+                    const Vector2 pixel{static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f};
+
+                    bool triangle;
+                    float area;
+                    Vector2 v0v1, v1v2, v2v0;
+                    const Vector2& point = pixel;
+                    const Vector2& v0 = pos0.GetXY();
+                    const Vector2& v1 = pos1.GetXY();
+                    const Vector2& v2 = pos2.GetXY();
+                    std::array<float,3>& inlined_weights = weights;
+                    if (point == v0 or point == v1 or point == v2) {
+                        triangle = true;
+                        goto triangle_initialization_finish;
+                    }
+                    v0v1 = v1 - v0;
+                    v1v2 = v2 - v1;
+                    v2v0 = v0 - v2;
+                    inlined_weights[0] = Vector2::Cross(v1v2, point - v1);
+                    inlined_weights[1] = Vector2::Cross(v2v0, point - v2);
+                    inlined_weights[2] = Vector2::Cross(v0v1, point - v0);
+                    if (inlined_weights[0] < 0) {
+                        triangle = false;
+                        goto triangle_initialization_finish;
+                    }
+                    if (inlined_weights[1] < 0) {
+                        triangle = false;
+                        goto triangle_initialization_finish;
+                    }
+                    if (inlined_weights[2] < 0) {
+                        triangle = false;
+                        goto triangle_initialization_finish;
+                    }
+                    area = 1.0f / Vector2::Cross(v0v1, v1v2);
+                    inlined_weights[0] *= area;
+                    inlined_weights[1] *= area;
+                    inlined_weights[2] *= area;
+                    triangle = true;
+                triangle_initialization_finish:
+                    
+                    // Point - Triangle test
+                    if (triangle)
+                    {
+                        // Interpolate Z-Buffer - optimized
+                        const float weightedZBufferV0{pos0.z * weights[0]};
+                        const float weightedZBufferV1{pos1.z * weights[1]};
+                        const float weightedZBufferV2{pos2.z * weights[2]};
+                        const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
+
+                        // Frustum culling
+                        if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
+
+                        // Z-test
+                        const int bufferIdx {px + (py * m_Width)};
+                        if (interpolatedZBuffer < m_DepthBuffer[bufferIdx])
+                        {
+                            m_DepthBuffer[bufferIdx] = interpolatedZBuffer;
+                            
+                            if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
+                            {
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.97f, 1.0f, 0.0f, 1.0f)};
+                                finalColor = remappedZBuffer;
+                                UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                                continue;
+                            }
+
+                            // Interpolate View Space depth - optimized
+                            const float weightedViewSpaceDepthV0{pos0.w * weights[0]};
+                            const float weightedViewSpaceDepthV1{pos1.w * weights[1]};
+                            const float weightedViewSpaceDepthV2{pos2.w * weights[2]};
+                            const float interpolatedViewSpaceDepth{1.0f / (weightedViewSpaceDepthV0 + weightedViewSpaceDepthV1 + weightedViewSpaceDepthV2)};
+
+                            // Interpolate UV - optimized
+                            const Vector2 weightedV0UV{vert0.uv * pos0.w * weights[0]};
+                            const Vector2 weightedV1UV{vert1.uv * pos1.w * weights[1]};
+                            const Vector2 weightedV2UV{vert2.uv * pos2.w * weights[2]};
+                            const Vector2 uv{(weightedV0UV + weightedV1UV + weightedV2UV) * interpolatedViewSpaceDepth};
+                            
+                            // --- TEXTURE ---
+                            // Diffuse
+                            const ColorRGB diffuseColor{m_DiffuseTexturePtr->Sample(uv)};
+                            // Normal map
+                            ColorRGB normalMapColor{m_NormalTexturePtr->Sample(uv)};
+                            // Glossiness
+                            const float glossiness{m_GlossinessTexturePtr->Sample(uv).r};
+                            // Specular
+                            const ColorRGB specularColor{m_SpecularTexturePtr->Sample(uv)};
+
+                            // --- NORMAL ---
+                            // Interpolate Normal + Normalization
+                            const Vector3 weightedV0Normal{vert0.normal * weights[0]};
+                            const Vector3 weightedV1Normal{vert1.normal * weights[1]};
+                            const Vector3 weightedV2Normal{vert2.normal * weights[2]};
+                            const Vector3 normal{(weightedV0Normal + weightedV1Normal + weightedV2Normal).Normalized()};
+
+                            // Interpolate Tangent + Normalization
+                            const Vector3 weightedV0Tangent{vert0.tangent * weights[0]};
+                            const Vector3 weightedV1Tangent{vert1.tangent * weights[1]};
+                            const Vector3 weightedV2Tangent{vert2.tangent * weights[2]};
+                            const Vector3 tangent{(weightedV0Tangent + weightedV1Tangent + weightedV2Tangent).Normalized()};
+
+                            // Binormal
+                            const Vector3 binormal{Vector3::Cross(normal, tangent)};
+
+                            // Tangent-space transformation matrix
+                            const Matrix tangentSpaceAxis{tangent, binormal, normal, Vector3::Zero};
+                            
+                            // Remap from [0, 1] to [-1, 1]
+                            normalMapColor = 2.0f * normalMapColor - colors::White;
+                            // Transform to tangent space, where normal and tangent of the vertex are defined in the world space
+                            const Vector3 normalMap{tangentSpaceAxis.TransformVector({normalMapColor.r, normalMapColor.g, normalMapColor.b})};
+                            
+                            // --- PIXEL VERTEX ---
+                            Vertex_Out pixelVertex;
+                            pixelVertex.normal = m_UseNormalMap ? normalMap : normal;
+                            pixelVertex.viewDirection = (vert0.viewDirection * weights[0] + vert1.viewDirection * weights[1] + vert2.viewDirection * weights[2]).Normalized();
+
+                            // Final shading
+                            {
+                                const Vertex_Out& vertex = pixelVertex;
+                                // Light
+                                Light light;
+                                light.direction = Vector3{m_LightDirection[0], m_LightDirection[1], m_LightDirection[2]}.Normalized();
+                                light.intensity = m_LightIntensity;
+
+                                // Observed area
+                                const float observedArea{Vector3::Dot(vertex.normal, -light.direction)};
+
+                                if (observedArea < 0) goto ShadePixelV3_exit;
+
+                                // Lambert
+                                const ColorRGB lambert{diffuseColor * m_KD / PI};
+
+                                // Phong
+                                const Vector3 reflectedLight{Vector3::Reflect(-light.direction, vertex.normal)};
+                                const float cosAlpha{std::max(0.0f, Vector3::Dot(reflectedLight, vertex.viewDirection))};
+                                const ColorRGB phong{specularColor * pow(cosAlpha, glossiness * m_Shininess)};
+
+                                switch (m_CurrentShadingMode)
+                                {
+                                case ShadingMode::ObservedArea:
+                                    finalColor = observedArea;
+                                    break;
+                                case ShadingMode::Diffuse:
+                                    finalColor = lambert * observedArea;
+                                    break;
+                                case ShadingMode::Specular:
+                                    finalColor = phong * observedArea;
+                                    break;
+                                case ShadingMode::Combined:
+                                    finalColor = light.color * light.intensity * (m_Ambient + lambert + phong) * observedArea;
+                                    break;
+                                }
+                            }
+                        ShadePixelV3_exit:
+
+                            {
+                                //Update Color in Buffer
+                                const float maxValue = std::max(finalColor.r, std::max(finalColor.g, finalColor.b));
+                                if (maxValue > 1.f)
+                                    finalColor /= maxValue;
+
+                                m_BackBufferPixelsPtr[px + (py * m_Width)] = SDL_MapRGB(m_BackBufferPtr->format,
+                                                                                        static_cast<uint8_t>(finalColor.r * 255),
+                                                                                        static_cast<uint8_t>(finalColor.g * 255),
+                                                                                        static_cast<uint8_t>(finalColor.b * 255));
+                            }
                         }
                     }
                 }
