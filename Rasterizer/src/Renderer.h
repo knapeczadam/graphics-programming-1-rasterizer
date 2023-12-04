@@ -150,6 +150,18 @@ namespace dae
         Texture* m_NormalTexturePtr     {nullptr};
         Texture* m_SpecularTexturePtr   {nullptr};
 
+        // Path
+        const std::string m_ResourcesPath         {"Resources/"};
+        const std::string m_DiffuseTexturePath    {m_ResourcesPath + "vehicle_diffuse.png"};
+        const std::string m_GlossinessTexturePath {m_ResourcesPath + "vehicle_gloss.png"};
+        const std::string m_NormalTexturePath     {m_ResourcesPath + "vehicle_normal.png"};
+        const std::string m_SpecularTexturePath   {m_ResourcesPath + "vehicle_specular.png"};
+        const std::string m_TuktukTexturePath     {m_ResourcesPath + "tuktuk.png"};
+        const std::string m_UVGridTexturePath     {m_ResourcesPath + "uv_grid.png"};
+        const std::string m_UVGrid2TexturePath    {m_ResourcesPath + "uv_grid_2.png"};
+        const std::string m_VehiclePath           {m_ResourcesPath + "vehicle.obj"};
+        const std::string m_TuktukPath            {m_ResourcesPath + "tuktuk.obj"};
+
         // float* m_pDepthBufferPixels{};
         std::vector<float> m_DepthBuffer {};
 
@@ -176,8 +188,8 @@ namespace dae
 
         float m_Ambient           {0.025f};
         float m_LightDirection[3] {0.577f,  -0.577f, 0.577f}; 
-        float m_LightIntensity    {7.0f};
-        float m_KD                {1.0f};   // Diffuse  reflection coefficient
+        float m_LightIntensity    {1.0f};
+        float m_KD                {7.0f};   // Diffuse  reflection coefficient
         float m_Shininess         {25.0f};
 
         float m_BackgroundColor[3] {0.3921f, 0.3921f, 0.3921f}; // 100, 100, 100

@@ -596,13 +596,6 @@ namespace dae
 
     void Renderer::InitializeOutputVertices()
     {
-        // --- OBJECTS ---
-        // Tuktuk
-        // Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
-        
-        // Vehicle
-        // Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_strip[0].vertices, meshes_world_strip[0].indices);
-
         // --- WEEK 1 ---
 #if W1
 #if TODO_0
@@ -635,26 +628,26 @@ namespace dae
         // --- WEEK 3 ---
 #elif W3
 #if TODO_0
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_TuktukPath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         vertices_ss.resize(meshes_world_list[0].vertices.size());
 #elif TODO_1
         vertices_ss_out.resize(meshes_world_strip[0].vertices.size());
 #elif TODO_2
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_TuktukPath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_3
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_TuktukPath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_4
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_TuktukPath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_5
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_TuktukPath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_6
-        Utils::ParseOBJ("Resources/tuktuk.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_TuktukPath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #endif
@@ -662,31 +655,31 @@ namespace dae
         // --- WEEK 4 ---
 #elif W4
 #if TODO_0
-        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_1
-        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_2
-        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_3
-        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_4
-        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_5
-        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #elif TODO_6
-        Utils::ParseOBJ("Resources/vehicle.obj", meshes_world_list[0].vertices, meshes_world_list[0].indices);
+        Utils::ParseOBJ(m_VehiclePath, meshes_world_list[0].vertices, meshes_world_list[0].indices);
         meshes_world_list_transformed = meshes_world_list;
         vertices_ss_out.resize(meshes_world_list[0].vertices.size());
 #endif
@@ -695,76 +688,62 @@ namespace dae
 
     void Renderer::InitializeTextures()
     {
-        // --- TEXTURES ---
-        // UV
-        // m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid.png");
-        // m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid_2.png");
-        
-        // Tuktuk
-        // m_TexturePtr = Texture::LoadFromFile("Resources/tuktuk.png");
-
-       // Vehicle
-        // m_DiffuseTexturePtr = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
-        // m_GlossinessTexturePtr = Texture::LoadFromFile("Resources/vehicle_gloss.png");
-        // m_NormalTexturePtr = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        // m_SpecularTexturePtr = Texture::LoadFromFile("Resources/vehicle_specular.png");
-
         // --- WEEK 2 ---
 #if W2
 #if TODO_1
-        m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        m_TexturePtr = Texture::LoadFromFile(m_UVGrid2TexturePath);
 #elif TODO_2
-        m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        m_TexturePtr = Texture::LoadFromFile(m_UVGrid2TexturePath);
 #elif TODO_3
-        m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        m_TexturePtr = Texture::LoadFromFile(m_UVGrid2TexturePath);
 #elif TODO_4
-        m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        m_TexturePtr = Texture::LoadFromFile(m_UVGrid2TexturePath);
 #elif TODO_5
-        m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        m_TexturePtr = Texture::LoadFromFile(m_UVGrid2TexturePath);
 #endif
 
         // --- WEEK 3 ---
 #elif W3
 #if TODO_0
-        m_TexturePtr = Texture::LoadFromFile("Resources/tuktuk.png");
+        m_TexturePtr = Texture::LoadFromFile(m_TuktukTexturePath);
 #elif TODO_1
-        m_TexturePtr = Texture::LoadFromFile("Resources/uv_grid_2.png");
+        m_TexturePtr = Texture::LoadFromFile(m_UVGrid2TexturePath);
 #elif TODO_2
-        m_TexturePtr = Texture::LoadFromFile("Resources/tuktuk.png");
+        m_TexturePtr = Texture::LoadFromFile(m_TuktukTexturePath);
 #elif TODO_3
-        m_TexturePtr = Texture::LoadFromFile("Resources/tuktuk.png");
+        m_TexturePtr = Texture::LoadFromFile(m_TuktukTexturePath);
 #elif TODO_4
-        m_TexturePtr = Texture::LoadFromFile("Resources/tuktuk.png");
+        m_TexturePtr = Texture::LoadFromFile(m_TuktukTexturePath);
 #elif TODO_5
-        m_TexturePtr = Texture::LoadFromFile("Resources/tuktuk.png");
+        m_TexturePtr = Texture::LoadFromFile(m_TuktukTexturePath);
 #elif TODO_6
-        m_TexturePtr = Texture::LoadFromFile("Resources/tuktuk.png");
+        m_TexturePtr = Texture::LoadFromFile(m_TuktukTexturePath);
 #endif
 
         // --- WEEK 4 ---
 #elif W4
 #if TODO_0
-        m_DiffuseTexturePtr = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
+        m_DiffuseTexturePtr    = Texture::LoadFromFile(m_DiffuseTexturePath);
 #elif TODO_1
 #elif TODO_2
-        m_NormalTexturePtr = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        m_NormalTexturePtr     = Texture::LoadFromFile(m_NormalTexturePath);
 #elif TODO_3
-        m_DiffuseTexturePtr = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
-        m_NormalTexturePtr  = Texture::LoadFromFile("Resources/vehicle_normal.png");
+        m_DiffuseTexturePtr    = Texture::LoadFromFile(m_DiffuseTexturePath);
+        m_NormalTexturePtr     = Texture::LoadFromFile(m_NormalTexturePath);
 #elif TODO_4
-        m_NormalTexturePtr     = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_SpecularTexturePtr   = Texture::LoadFromFile("Resources/vehicle_specular.png");
-        m_GlossinessTexturePtr = Texture::LoadFromFile("Resources/vehicle_gloss.png");
+        m_NormalTexturePtr     = Texture::LoadFromFile(m_NormalTexturePath);
+        m_SpecularTexturePtr   = Texture::LoadFromFile(m_SpecularTexturePath);
+        m_GlossinessTexturePtr = Texture::LoadFromFile(m_GlossinessTexturePath);
 #elif TODO_5
-        m_DiffuseTexturePtr    = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
-        m_NormalTexturePtr     = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_SpecularTexturePtr   = Texture::LoadFromFile("Resources/vehicle_specular.png");
-        m_GlossinessTexturePtr = Texture::LoadFromFile("Resources/vehicle_gloss.png");
+        m_DiffuseTexturePtr    = Texture::LoadFromFile(m_DiffuseTexturePath);
+        m_NormalTexturePtr     = Texture::LoadFromFile(m_NormalTexturePath);
+        m_SpecularTexturePtr   = Texture::LoadFromFile(m_SpecularTexturePath);
+        m_GlossinessTexturePtr = Texture::LoadFromFile(m_GlossinessTexturePath);
 #elif TODO_6
-        m_DiffuseTexturePtr    = Texture::LoadFromFile("Resources/vehicle_diffuse.png");
-        m_NormalTexturePtr     = Texture::LoadFromFile("Resources/vehicle_normal.png");
-        m_SpecularTexturePtr   = Texture::LoadFromFile("Resources/vehicle_specular.png");
-        m_GlossinessTexturePtr = Texture::LoadFromFile("Resources/vehicle_gloss.png");
+        m_DiffuseTexturePtr    = Texture::LoadFromFile(m_DiffuseTexturePath);
+        m_NormalTexturePtr     = Texture::LoadFromFile(m_NormalTexturePath);
+        m_SpecularTexturePtr   = Texture::LoadFromFile(m_SpecularTexturePath);
+        m_GlossinessTexturePtr = Texture::LoadFromFile(m_GlossinessTexturePath);
 #endif
 #endif
     }
