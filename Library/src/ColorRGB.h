@@ -9,9 +9,11 @@ namespace dae
         ColorRGB() = default;
         ColorRGB(float _r, float _g, float _b) : r(_r), g(_g), b(_b) { }
         ColorRGB(float c) : r(c), g(c), b(c) { }
-        ColorRGB(const ColorRGB& other) = default;
-        ColorRGB(ColorRGB&& other) noexcept = default;
-        ColorRGB& operator=(const ColorRGB& other) = default;
+        ColorRGB(const float (&c)[3]) : r(c[0]), g(c[1]), b(c[2]) { }
+        
+        ColorRGB(const ColorRGB& other)                = default;
+        ColorRGB(ColorRGB&& other) noexcept            = default;
+        ColorRGB& operator=(const ColorRGB& other)     = default;
         ColorRGB& operator=(ColorRGB&& other) noexcept = default;
 
         ~ColorRGB() = default;

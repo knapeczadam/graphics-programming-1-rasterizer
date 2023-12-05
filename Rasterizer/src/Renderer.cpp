@@ -466,7 +466,7 @@ namespace dae
         ImGui::Separator();
         ImGui::Spacing();
         
-        ImGui::SliderFloat("Ambient", &m_Ambient, 0.0f, 1.0f);
+        ImGui::ColorEdit3("Ambient", m_Ambient);
         ImGui::SliderFloat3("Light direction", m_LightDirection, -1.0f, 1.0f);
         ImGui::SliderFloat("Light intensity", &m_LightIntensity, 0.0f, 20.0f);
         ImGui::SliderFloat("KD (Diffuse reflection coefficient)", &m_KD, 0.0f, 20.0f);
@@ -609,9 +609,9 @@ namespace dae
 #elif TODO_5
         m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #elif TODO_6
-        m_Camera.Initialize(45.0f, {0.0f, 0.0f, 0.0f} );
+        m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #elif TODO_7
-        m_Camera.Initialize(45.0f, {0.0f, 0.0f, 0.0f} );
+        m_Camera.Initialize(45.0f, {0.0f, 5.0f, -64.0f}, 0.1f, 100.0f);
 #endif
 #endif
     }
@@ -1069,7 +1069,7 @@ namespace dae
             case ShadingMode::Specular:
                 finalColor = phong * observedArea;
                 break;
-        case ShadingMode::Combined:
+            case ShadingMode::Combined:
                 finalColor = LightUtils::GetRadiance(light) * (m_Ambient + lambert + phong) * observedArea;
                 break;
         }

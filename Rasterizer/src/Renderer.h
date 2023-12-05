@@ -182,7 +182,7 @@ namespace dae
         float   m_RotationSpeed    {10.0f};
         float   m_AccTime          {0.0f};
         Matrix  m_Transform        {};
-        Vector3 m_Translation      {0.0f,  0.0f, 50.0f};
+        Vector3 m_Translation      {0.0f,  0.0f, 0.0f};
 
         int m_Width  {0};
         int m_Height {0};
@@ -191,10 +191,10 @@ namespace dae
         ShadingMode m_CurrentShadingMode       {ShadingMode::Combined};
         std::string m_CurrentShadingModeAsText {"COMBINED"};
 
-        float m_Ambient           {0.025f};
+        float m_Ambient[3]        {0.3f, 0.3f, 0.3f}; // 77, 77, 77
         float m_LightDirection[3] {0.577f,  -0.577f, 0.577f}; 
         float m_LightIntensity    {1.0f};
-        float m_KD                {7.0f};   // Diffuse  reflection coefficient
+        float m_KD                {7.0f}; // Diffuse  reflection coefficient
         float m_Shininess         {25.0f};
 
         float m_BackgroundColor[3] {0.3921f, 0.3921f, 0.3921f}; // 100, 100, 100
