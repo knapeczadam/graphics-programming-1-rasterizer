@@ -2,6 +2,7 @@
 
 // Project includes
 #include "Camera.h"
+#include "SceneSelector.h"
 
 // Standard includes
 #include <cstdint>
@@ -156,7 +157,11 @@ namespace dae
         Texture* m_SpecularTexturePtr   {nullptr};
 
         // Path
+#if CUSTOM_PATH
+        const std::string m_ResourcesPath         {"../_Resources/"};
+#else
         const std::string m_ResourcesPath         {"Resources/"};
+#endif
         const std::string m_DiffuseTexturePath    {m_ResourcesPath + "vehicle_diffuse.png"};
         const std::string m_GlossinessTexturePath {m_ResourcesPath + "vehicle_gloss.png"};
         const std::string m_NormalTexturePath     {m_ResourcesPath + "vehicle_normal.png"};

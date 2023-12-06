@@ -17,6 +17,8 @@ namespace dae
     #define TODO_5 0
     #define TODO_6 0
     #define TODO_7 1
+
+    #define CUSTOM_PATH 0
 }
 
 // --- WEEK 1 ---
