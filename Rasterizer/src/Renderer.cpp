@@ -2478,7 +2478,7 @@ namespace dae
                             // Color
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
                             }
                             else
@@ -2586,7 +2586,7 @@ namespace dae
                             // Color
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
                             }
                             else
@@ -2711,7 +2711,7 @@ namespace dae
                             // Color
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
                             }
                             else
@@ -2845,7 +2845,7 @@ namespace dae
                             // Color
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
                             }
                             else
@@ -2982,7 +2982,7 @@ namespace dae
                             // Color
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.9f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = ColorRGB{remappedZBuffer, remappedZBuffer, remappedZBuffer};
                             }
                             else
@@ -3125,7 +3125,7 @@ namespace dae
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
                                 // std::cout << interpolatedZBuffer << '\n';
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.999f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = remappedZBuffer;
                             }
                             else
@@ -3245,7 +3245,7 @@ namespace dae
                             
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.97f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = remappedZBuffer;
                                 UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                                 continue;
@@ -3461,7 +3461,7 @@ namespace dae
                             
                             if (m_CurrentShadingMode == ShadingMode::DepthBuffer)
                             {
-                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.97f, 1.0f, 0.0f, 1.0f)};
+                                const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = remappedZBuffer;
                                 UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
                                 continue;
