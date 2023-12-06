@@ -112,6 +112,8 @@ namespace dae
     {
         // Initialize 
         SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
+        m_HalfWidth  = m_Width * 0.5f;
+        m_HalfHeight = m_Height * 0.5f;
 
         // Create Buffers
         m_FrontBufferPtr      = SDL_GetWindowSurface(pWindow);
@@ -797,6 +799,9 @@ namespace dae
             const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
             // WORLD -> VIEW
             const Vector4 v4_view = m_Camera.m_InverseViewMatrix.TransformPoint(v4);
+            // DEPTH
+            assert(v4_view.z != 0.0f and "Renderer::TransformFromWorldToScreenV1: Division by zero");
+            vertex_out.position.z = v4_view.z;
             // PROJECTION
             vertex_out.position.x = v4_view.x / v4_view.z;
             vertex_out.position.y = v4_view.y / v4_view.z;
@@ -806,9 +811,6 @@ namespace dae
             // SCREEN
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
-            // DEPTH
-            assert(v4_view.z != 0.0f and "Renderer::TransformFromWorldToScreenV1: Division by zero");
-            vertex_out.position.z = v4_view.z;
             // UV
             vertex_out.uv = vertex_in.uv;
         }
@@ -831,6 +833,9 @@ namespace dae
             const Vector4 v4{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
             // WORLD -> VIEW - PROJECTION
             const Vector4 v4_proj = (m_Camera.m_InverseViewMatrix * m_Camera.m_ProjectionMatrix).TransformPoint(v4);
+            // DEPTH
+            assert(v4_proj.w != 0.0f and "Renderer::TransformFromWorldToScreenV2: Division by zero");
+            vertex_out.position.w = v4_proj.w;
             // NDC
             vertex_out.position.x = v4_proj.x / v4_proj.w;
             vertex_out.position.y = v4_proj.y / v4_proj.w;
@@ -838,9 +843,6 @@ namespace dae
             // SCREEN
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
             vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
-            // DEPTH
-            assert(v4_proj.w != 0.0f and "Renderer::TransformFromWorldToScreenV2: Division by zero");
-            vertex_out.position.w = v4_proj.w;
             // UV
             vertex_out.uv = vertex_in.uv;
         }
@@ -872,8 +874,8 @@ namespace dae
             vertex_out.position.z = projectedPos.z * vertex_out.position.w;
             vertex_out.position.z = 1.0f / vertex_out.position.z;
             // SCREEN
-            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
-            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * m_HalfWidth;
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * m_HalfHeight;
             // UV
             vertex_out.uv = vertex_in.uv;
         }
@@ -905,8 +907,8 @@ namespace dae
             vertex_out.position.z = projectedPos.z * vertex_out.position.w;
             vertex_out.position.z = 1.0f / vertex_out.position.z;
             // SCREEN
-            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
-            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * m_HalfWidth;
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * m_HalfHeight;
             // UV
             vertex_out.uv = vertex_in.uv;
             // WORLD NORMAL
@@ -1288,7 +1290,7 @@ namespace dae
                             finalColor = triangle_vertices_world_todo_4[triangleIdx].color * weights[0] +
                                      triangle_vertices_world_todo_4[triangleIdx + 1].color * weights[1] +
                                      triangle_vertices_world_todo_4[triangleIdx + 2].color * weights[2];
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1357,7 +1359,7 @@ namespace dae
 
                             // Color
                             finalColor = colors::White;
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1442,7 +1444,7 @@ namespace dae
 
                             // Color
                             finalColor = colors::White;
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1530,7 +1532,7 @@ namespace dae
 
                             // Color
                             finalColor = m_TexturePtr->Sample(uv);
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1624,7 +1626,7 @@ namespace dae
 
                             // Color
                             finalColor = m_TexturePtr->Sample(uv);
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1719,7 +1721,7 @@ namespace dae
 
                             // Color
                             finalColor = m_TexturePtr->Sample(uv);
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1799,7 +1801,7 @@ namespace dae
 
                             // Diffuse
                             finalColor = m_TexturePtr->Sample(uv);
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1903,7 +1905,7 @@ namespace dae
                             
                             // Color
                             finalColor = m_TexturePtr->Sample(uv);
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -1990,7 +1992,7 @@ namespace dae
                             
                             // Color
                             finalColor = m_TexturePtr->Sample(uv);
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2085,7 +2087,7 @@ namespace dae
                             {
                                 finalColor = m_TexturePtr->Sample(uv);
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2180,7 +2182,7 @@ namespace dae
                             {
                                 finalColor = m_TexturePtr->Sample(uv);
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2235,7 +2237,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -2281,7 +2283,7 @@ namespace dae
                             {
                                 finalColor = m_TexturePtr->Sample(uv);
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2336,7 +2338,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -2382,8 +2384,9 @@ namespace dae
                             {
                                 finalColor = m_TexturePtr->Sample(uv);
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
+                        
                     }
                 }
             }
@@ -2439,7 +2442,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -2485,7 +2488,7 @@ namespace dae
                             {
                                 finalColor = m_DiffuseTexturePtr->Sample(uv);
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2541,7 +2544,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -2598,7 +2601,7 @@ namespace dae
                                 // Final shading
                                 ShadePixelV0(pixelVertex, finalColor);
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2654,7 +2657,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -2732,7 +2735,7 @@ namespace dae
                                 ShadePixelV0(pixelVertex, finalColor);
                                 
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2788,7 +2791,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -2869,7 +2872,7 @@ namespace dae
                                 ShadePixelV1(pixelVertex, finalColor, diffuseColor);
                                 
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -2925,7 +2928,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -3011,7 +3014,7 @@ namespace dae
                                 ShadePixelV2(pixelVertex, finalColor, colors::Black, specularColor, glossiness);
                                 
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -3067,7 +3070,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -3156,7 +3159,7 @@ namespace dae
                                 // Final shading
                                 ShadePixelV2(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
                             }
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -3219,7 +3222,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -3247,7 +3250,7 @@ namespace dae
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = remappedZBuffer;
-                                UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                                UpdateColor(finalColor, px, py);
                                 continue;
                             }
 
@@ -3305,7 +3308,7 @@ namespace dae
                             // Final shading
                             ShadePixelV3(pixelVertex, finalColor, diffuseColor, specularColor, glossiness);
                             
-                            UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                            UpdateColor(finalColor, px, py);
                         }
                     }
                 }
@@ -3346,8 +3349,8 @@ namespace dae
             vertex_out.position.z = projectedPos.z * vertex_out.position.w;
             vertex_out.position.z = 1.0f / vertex_out.position.z;
             // SCREEN
-            vertex_out.position.x = (vertex_out.position.x + 1.0f) * 0.5f * static_cast<float>(m_Width);
-            vertex_out.position.y = (1.0f - vertex_out.position.y) * 0.5f * static_cast<float>(m_Height);
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * m_HalfWidth;
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * m_HalfHeight;
             // UV
             vertex_out.uv = vertex_in.uv;
             // WORLD NORMAL
@@ -3398,7 +3401,7 @@ namespace dae
                     if (m_CurrentShadingMode == ShadingMode::BoundingBox)
                     {
                         finalColor = colors::White;
-                        UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                        UpdateColor(finalColor, px, py);
                         continue;
                     }
                     
@@ -3463,7 +3466,7 @@ namespace dae
                             {
                                 const float remappedZBuffer {Remap(interpolatedZBuffer, 0.99885f, 1.0f, 0.0f, 1.0f)};
                                 finalColor = remappedZBuffer;
-                                UpdateColor(finalColor, static_cast<int>(px), static_cast<int>(py));
+                                UpdateColor(finalColor, px, py);
                                 continue;
                             }
 

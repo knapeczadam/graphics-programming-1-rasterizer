@@ -189,8 +189,10 @@ namespace dae
         Matrix  m_Transform        {};
         Vector3 m_Translation      {0.0f,  0.0f, 0.0f};
 
-        int m_Width  {0};
-        int m_Height {0};
+        int   m_Width      {0};
+        int   m_Height     {0};
+        float m_HalfWidth  {0.0f};
+        float m_HalfHeight {0.0f};
 
         ShadingMode m_PreviousShadingMode      {ShadingMode::Combined};
         ShadingMode m_CurrentShadingMode       {ShadingMode::Combined};
