@@ -196,7 +196,7 @@ namespace dae
         ShadingMode m_CurrentShadingMode       {ShadingMode::Combined};
         std::string m_CurrentShadingModeAsText {"COMBINED"};
 
-        float m_Ambient[3]        {0.3f, 0.3f, 0.3f}; // 77, 77, 77
+        float m_Ambient[3]        {0.03f, 0.03f, 0.03f}; // 8, 8, 8
         float m_LightDirection[3] {0.577f,  -0.577f, 0.577f}; 
         float m_LightIntensity    {1.0f};
         float m_KD                {7.0f}; // Diffuse  reflection coefficient
