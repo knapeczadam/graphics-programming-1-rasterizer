@@ -83,10 +83,11 @@ namespace dae
         void InitializeTextures();
 
         // Vertex Transformation
-        void TransformFromWorldToScreenV1(const  std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
-        void TransformFromWorldToScreenV2(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
-        void TransformFromWorldToScreenV3(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
-        void TransformFromWorldToScreenV4(const  std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void TransformFromWorldToScreenV1( const std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
+        void TransformFromWorldToScreenV2( const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void TransformFromWorldToScreenV3( const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void TransformFromWorldToScreenV4( const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+        void TransformFromWorldToScreenV5( const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
         void TransformFromNDCtoScreenSpace(const std::vector<Vertex>& vertices_in, std::vector<Vertex>&     vertices_out) const;
         
         // Render helpers

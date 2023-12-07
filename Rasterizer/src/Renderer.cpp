@@ -882,7 +882,7 @@ namespace dae
     }
 
     /**
-     * \brief Optimized version with normal calculation
+     * \brief Optimized version + normal, tangent, view direction
      * \param vertices_in 
      * \param vertices_out 
      */
@@ -905,6 +905,62 @@ namespace dae
             vertex_out.position.x = projectedPos.x * vertex_out.position.w;
             vertex_out.position.y = projectedPos.y * vertex_out.position.w;
             vertex_out.position.z = projectedPos.z * vertex_out.position.w;
+            vertex_out.position.z = 1.0f / vertex_out.position.z;
+            // SCREEN
+            vertex_out.position.x = (vertex_out.position.x + 1.0f) * m_HalfWidth;
+            vertex_out.position.y = (1.0f - vertex_out.position.y) * m_HalfHeight;
+            // UV
+            vertex_out.uv = vertex_in.uv;
+            // WORLD NORMAL
+            vertex_out.normal = vertex_in.normal;
+            // WORLD TANGENT
+            vertex_out.tangent = vertex_in.tangent;
+            // VIEW-DIRECTION
+            vertex_out.viewDirection = vertex_in.position - m_Camera.GetPosition();
+        }
+    }
+
+    /**
+     * \brief Optimized version with frustum culling  + normal, tangent, view direction
+     * \param vertices_in 
+     * \param vertices_out 
+     */
+    void Renderer::TransformFromWorldToScreenV5(const std::vector<Vertex>& vertices_in,
+        std::vector<Vertex_Out>& vertices_out) const
+    {
+        for (size_t i{0}; i < vertices_in.size(); ++i)
+        {
+            const Vertex& vertex_in = vertices_in[i];
+            Vertex_Out& vertex_out = vertices_out[i];
+            vertex_out.isFrustumCulled = false;
+
+            // MODEL/OBJECT
+            const Vector4 positionIn{vertex_in.position.x, vertex_in.position.y, vertex_in.position.z, 1.0f};
+            // WORLD -> VIEW -> PROJECTION
+            const Vector4 projectedPos = (m_Camera.m_InverseViewMatrix * m_Camera.m_ProjectionMatrix).TransformPoint(positionIn);
+            // DEPTH
+            assert(projectedPos.w != 0.0f and "Renderer::TransformFromWorldToScreenV4: Division by zero");
+            vertex_out.position.w = 1.0f / projectedPos.w;
+            // NDC
+            vertex_out.position.x = projectedPos.x * vertex_out.position.w;
+            // FRUSTUM CULLING
+            if (vertex_out.position.x < -1.0f or vertex_out.position.x > 1.0f)
+            {
+                vertex_out.isFrustumCulled = true;
+                continue;
+            }
+            vertex_out.position.y = projectedPos.y * vertex_out.position.w;
+            if (vertex_out.position.y < -1.0f or vertex_out.position.y > 1.0f)
+            {
+                vertex_out.isFrustumCulled = true;
+                continue;
+            }
+            vertex_out.position.z = projectedPos.z * vertex_out.position.w;
+            if (vertex_out.position.z < 0.0f or vertex_out.position.z > 1.0f)
+            {
+                vertex_out.isFrustumCulled = true;
+                continue;
+            }
             vertex_out.position.z = 1.0f / vertex_out.position.z;
             // SCREEN
             vertex_out.position.x = (vertex_out.position.x + 1.0f) * m_HalfWidth;
@@ -3180,7 +3236,7 @@ namespace dae
         SDL_FillRect(m_BackBufferPtr, nullptr, SDL_MapRGB(m_BackBufferPtr->format, r, g, b));
 
         // Transform vertices from world to screen space
-        TransformFromWorldToScreenV4(meshes_world_list_transformed[0].vertices, vertices_ss_out);
+        TransformFromWorldToScreenV5(meshes_world_list_transformed[0].vertices, vertices_ss_out);
 
         const std::vector<uint32_t>& indices{meshes_world_list_transformed[0].indices};
         for (size_t idx{0}; idx < indices.size(); idx+=3)
@@ -3194,6 +3250,8 @@ namespace dae
             const Vertex_Out& v0{vertices_ss_out[idx0]};
             const Vertex_Out& v1{vertices_ss_out[idx1]};
             const Vertex_Out& v2{vertices_ss_out[idx2]};
+
+            if (v0.isFrustumCulled or v1.isFrustumCulled or v2.isFrustumCulled) continue;
 
             // Triangle's vertices' positions
             const Vector4& pos0{v0.position};
@@ -3236,9 +3294,6 @@ namespace dae
                         const float weightedZBufferV1{pos1.z * weights[1]};
                         const float weightedZBufferV2{pos2.z * weights[2]};
                         const float interpolatedZBuffer{1.0f / (weightedZBufferV0 + weightedZBufferV1 + weightedZBufferV2)};
-
-                        // Frustum culling
-                        if (interpolatedZBuffer < 0.0f or interpolatedZBuffer > 1.0f) continue;
 
                         // Z-test
                         const int bufferIdx {GetBufferIndex(px, py)};

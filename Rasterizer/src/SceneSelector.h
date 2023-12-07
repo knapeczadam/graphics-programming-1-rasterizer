@@ -58,6 +58,6 @@ namespace dae
  * TODO_3: Vehicle - Diffuse with sampled normals + observed area
  * TODO_4: Vehicle - Specular with sampled normals + observed area
  * TODO_5: Vehicle - Combined
- * TODO_6: Vehicle - Final - Structured, unoptimized, readable
- * TODO_7: Vehicle - Final - Inlined, unreadable
+ * TODO_6: Vehicle - Final - Structured, unoptimized, readable (with early frustum culling - can be slower than TODO_7)
+ * TODO_7: Vehicle - Final - Inlined, unreadable (with late frustum culling)
  */
