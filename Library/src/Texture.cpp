@@ -2,6 +2,7 @@
 #include "Vector2.h"
 #include <SDL_image.h>
 
+#include <algorithm>
 #include <iostream>
 
 namespace dae
@@ -39,14 +40,21 @@ namespace dae
      */
     ColorRGB Texture::Sample(const Vector2& uv) const
     {
-        if (uv.x < 0.0f or uv.x > 1.0f or uv.y < 0.0f or uv.y > 1.0f)
-            return ColorRGB{0.39f, 0.39f, 0.39f};
-        const int x{static_cast<int>(uv.x * static_cast<float>(m_pSurface->w))};
-        const int y{static_cast<int>(uv.y * static_cast<float>(m_pSurface->h))};
-        const int index{y * m_pSurface->w + x};
-        const uint32_t pixel{m_pSurfacePixels[index]};
+        // Clamp uv to [0, 1]
+        float x {std::clamp(uv.x, 0.f, 1.f)};
+        float y {std::clamp(uv.y, 0.f, 1.f)};
+
+        // Calculate the index of the pixel
+        x = x * static_cast<float>(m_SurfacePtr->w);
+        y = y * static_cast<float>(m_SurfacePtr->h);
+        const int index{static_cast<int>(y) * m_SurfacePtr->w + static_cast<int>(x)};
+
+        // Get the pixel at the index
+        const uint32_t pixel{m_SurfacePixelsPtr[index]};
+
+        // Convert the pixel to a ColorRGB, range [0, 1]
         uint8_t r, g, b;
-        SDL_GetRGB(pixel, m_pSurface->format, &r, &g, &b);
+        SDL_GetRGB(pixel, m_SurfacePtr->format, &r, &g, &b);
         return ColorRGB{static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f};
     }
 }

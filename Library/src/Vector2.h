@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 namespace dae
 {
     struct Vector2
@@ -11,6 +13,18 @@ namespace dae
         Vector2(float _x, float _y);
         Vector2(const Vector2& from, const Vector2& to);
 
+        struct Hash
+        {
+            size_t operator()(const Vector2& v) const
+            {
+                // Use a combination of the hash values of x and y
+                size_t hashX = std::hash<float>{}(v.x);
+                size_t hashY = std::hash<float>{}(v.y);
+                // Combine the hash values
+                return hashX ^ (hashY + 0x9e3779b9 + (hashX << 6) + (hashX >> 2));
+            }
+        };
+        
         float Magnitude() const;
         float SqrMagnitude() const;
         float Normalize();
@@ -34,6 +48,7 @@ namespace dae
         float operator[](int index) const;
 
         bool operator==(const Vector2& v) const;
+        bool operator<(const Vector2& v) const;
 
         static const Vector2 UnitX;
         static const Vector2 UnitY;

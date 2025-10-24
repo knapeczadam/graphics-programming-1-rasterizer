@@ -126,5 +126,12 @@ namespace dae
     {
         return AreEqual(x, v.x) && AreEqual(y, v.y);
     }
+
+    bool Vector2::operator<(const Vector2& v) const
+    {
+        if (AreEqual(x, v.x))
+            return y < v.y;
+        return x < v.x;
+    }
 #pragma endregion
 }
