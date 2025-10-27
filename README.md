@@ -29,8 +29,8 @@ It’s shared mainly for **archival and educational purposes** — documenting m
 
 ## 👨‍🏫 Teaching Staff
 
-- **Co-ordinator:** Samyn Koen  
-- **Other teaching staff:** Delombaerde Flor, Vandenberghe Pieter-Jan  
+- **Co-ordinator:** Koen Samyn
+- **Other teaching staff:** Flor Delombaerde, Pieter-Jan Vandenberghe
 
 ---
 
