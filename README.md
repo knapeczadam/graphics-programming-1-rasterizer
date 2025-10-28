@@ -1,4 +1,4 @@
-# 💡 Graphics Programming 1 – Rasterizer  
+# 🛺 Graphics Programming 1 – Rasterizer  
 
 Hey there, fellow DAE student, curious visitor, or graphics enthusiast 👋  
 Welcome to my **Graphics Programming 1 – Rasterizer** repository — part of the **third semester (2023)** at **DAE**.
